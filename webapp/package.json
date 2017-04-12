@@ -3,14 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@types/jest": "^19.2.2",
-    "@types/node": "^7.0.12",
-    "@types/react": "^15.0.21",
-    "@types/react-dom": "^0.14.23",
+    "antd": "^2.9.1",
+    "page": "^1.7.1",
     "react": "^15.5.4",
     "react-dom": "^15.5.4"
   },
   "devDependencies": {
+    "@types/jest": "^19.2.2",
+    "@types/node": "^7.0.12",
+    "@types/page": "^1.5.31",
+    "@types/react": "^15.0.21",
+    "@types/react-dom": "^0.14.23",
     "react-scripts-ts": "1.2.0"
   },
   "scripts": {

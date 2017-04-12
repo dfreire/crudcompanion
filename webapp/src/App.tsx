@@ -1,22 +1,49 @@
 import * as React from 'react';
-import './App.css';
+import * as page from 'page';
+import Page from './Page';
+import { Link } from './Link';
 
-const logo = require('./logo.svg');
+interface Props {
 
-class App extends React.Component<{}, null> {
-  render() {
-    return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
-        </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
-      </div>
-    );
-  }
+}
+
+interface State {
+    pageContext?: PageJS.Context
+}
+
+class App extends React.Component<Props, State> {
+    constructor(props: Props) {
+        super(props);
+        this.state = {};
+    }
+
+    componentWillMount() {
+        console.log('componentWillMount');
+
+        page('*', (pageContext: PageJS.Context) => {
+            console.log('pageContext', pageContext);
+            this.setState({ pageContext });
+        });
+
+        page.start({ hashbang: false });
+    }
+
+    render() {
+        return (
+            <div>
+                <Link path="/a" text="a" /> | <Link path="/b" text="b" /> | <Link path="/c" text="c" />
+                {this._render()}
+            </div>
+        );
+    }
+
+    _render() {
+        if (this.state.pageContext != null) {
+            return <Page pageContext={this.state.pageContext} />;
+        } else {
+            return <div />;
+        }
+    }
 }
 
 export default App;
