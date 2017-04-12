@@ -1,6 +1,7 @@
 import * as React from 'react';
+import axios from 'axios';
+import { Row, Col } from 'antd';
 import { PageModel } from './Model';
-import { Button } from 'antd';
 
 interface Props {
     pageContext: PageJS.Context;
@@ -18,19 +19,32 @@ class Page extends React.Component<Props, State> {
 
     render() {
         return (
-            <div className="page">
-                <h2>Welcome to: {this.props.pageContext.path}</h2>
-                <Button type="primary">Button</Button>
+            <div>
+                <Row>
+                    <Col span={12}>{JSON.stringify(this.state.model)}</Col>
+                </Row>
             </div>
         );
     }
 
     componentDidMount() {
-        console.log('[Page] componentDidMount');
+        this._updateModel();
     }
 
     componentDidUpdate() {
-        console.log('[Page] componentDidUpdate');
+        this._updateModel();
+    }
+
+    _updateModel() {
+        const path = this.props.pageContext.path === '/' ? '/index' : this.props.pageContext.path;
+
+        axios.get(`${path}.json`)
+            .then((response) => {
+                this.setState({ model: response.data as PageModel });
+            })
+            .catch((error) => {
+                this.setState({ model: undefined });
+            });
     }
 }
 

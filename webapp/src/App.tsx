@@ -1,14 +1,13 @@
 import * as React from 'react';
 import * as page from 'page';
 import Page from './Page';
-import { Link } from './Link';
 
 interface Props {
 
 }
 
 interface State {
-    pageContext?: PageJS.Context
+    pageContext?: PageJS.Context;
 }
 
 class App extends React.Component<Props, State> {
@@ -18,26 +17,21 @@ class App extends React.Component<Props, State> {
     }
 
     componentWillMount() {
-        console.log('componentWillMount');
-
         page('*', (pageContext: PageJS.Context) => {
-            console.log('pageContext', pageContext);
             this.setState({ pageContext });
         });
-
         page.start({ hashbang: false });
     }
 
     render() {
         return (
             <div>
-                <Link path="/a" text="a" /> | <Link path="/b" text="b" /> | <Link path="/c" text="c" />
-                {this._render()}
+                {this._renderPage()}
             </div>
         );
     }
 
-    _render() {
+    _renderPage() {
         if (this.state.pageContext != null) {
             return <Page pageContext={this.state.pageContext} />;
         } else {
