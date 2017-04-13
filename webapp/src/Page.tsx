@@ -1,30 +1,48 @@
 import * as React from 'react';
 import axios from 'axios';
 import { Row, Col } from 'antd';
-import { PageModel } from './Model';
+import { PageModel, FieldModel } from './Model';
 
 interface Props {
     pageContext: PageJS.Context;
 }
 
 interface State {
-    model?: PageModel;
+    model: PageModel;
 }
 
 class Page extends React.Component<Props, State> {
+    private cache: { [key: string]: PageModel };
+
     constructor(props: Props) {
         super(props);
-        this.state = {};
+        this.state = { model: { fields: [] } };
+        this.cache = {};
     }
 
     render() {
         return (
             <div>
-                <Row>
-                    <Col span={12}>{JSON.stringify(this.state.model)}</Col>
-                </Row>
+                {this._renderFields()}
             </div>
         );
+    }
+
+    _renderFields() {
+        return this.state.model.fields.map((field, i) => {
+            return this._renderField(field, i);
+        });
+    }
+
+    _renderField(field: FieldModel, i: number) {
+        return (
+            <Row key={i}>
+                <Col span={field.span}>
+                    <h1>{field.title}</h1>
+                    <p>{JSON.stringify(field)}</p>
+                </Col>
+            </Row>
+        )
     }
 
     componentDidMount() {
@@ -36,15 +54,26 @@ class Page extends React.Component<Props, State> {
     }
 
     _updateModel() {
-        const path = this.props.pageContext.path === '/' ? '/index' : this.props.pageContext.path;
+        const pagePath = this.props.pageContext.path;
+        console.log(pagePath);
 
-        axios.get(`${path}.json`)
-            .then((response) => {
-                this.setState({ model: response.data as PageModel });
-            })
-            .catch((error) => {
-                this.setState({ model: undefined });
-            });
+        if (this.cache[pagePath] != null) {
+            if (this.cache[pagePath] !== this.state.model) {
+                this.setState({ model: this.cache[pagePath] });
+            }
+        } else {
+            const url = `/api/page/${pagePath}/index.json`.replace(/\/\/+/g, '\/');
+            console.log(url);
+            axios.get(url)
+                .then((response) => {
+                    const model = response.data as PageModel;
+                    this.cache[pagePath] = model;
+                    this.setState({ model });
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        }
     }
 }
 

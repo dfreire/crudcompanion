@@ -17,6 +17,7 @@
     "@types/react-dom": "^0.14.23",
     "react-scripts-ts": "1.2.0"
   },
+  "proxy": "http://localhost:4000",
   "scripts": {
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
