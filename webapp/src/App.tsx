@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as page from 'page';
-import Page from './Page';
+import Page from './page/Page';
 
 interface Props {
 

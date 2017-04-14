@@ -1,8 +1,16 @@
 import * as React from 'react';
 import axios from 'axios';
-import { Row, Col } from 'antd';
-import { PageModel, FieldModel, TableFieldModel } from './Model';
-import TableField from './fields/TableField';
+import { Row, Col, Button } from 'antd';
+import { Table, TableModel } from './table/Table';
+
+interface PageModel {
+    blocks: BlockModel[];
+}
+
+export interface BlockModel {
+    type: 'table' | 'form';
+    span: number;
+}
 
 interface Props {
     pageContext: PageJS.Context;
@@ -17,37 +25,42 @@ class Page extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        this.state = { model: { fields: [] } };
+        this.state = { model: { blocks: [] } };
         this.cache = {};
     }
 
     render() {
         return (
             <div>
-                {this._renderFields()}
+                {this._renderBlocks()}
+                <Row>
+                    <Col span={24} style={{ textAlign: '_right' }}>
+                        <Button type="primary" style={{ width: 100, marginRight: 10 }}>Save</Button>
+                        <Button style={{ width: 100 }}>Cancel</Button>
+                    </Col>
+                </Row>
             </div>
         );
     }
 
-    _renderFields() {
-        return this.state.model.fields.map((fieldModel, i) => {
+    _renderBlocks() {
+        return this.state.model.blocks.map((blockModel, i) => {
             return (
                 <Row key={i}>
-                    <Col span={fieldModel.span}>
-                        <h2>{fieldModel.title}</h2>
-                        {this._renderField(fieldModel)}
+                    <Col span={blockModel.span}>
+                        {this._renderBlock(blockModel)}
                     </Col>
                 </Row>
             )
         });
     }
 
-    _renderField(fieldModel: FieldModel) {
-        switch (fieldModel.type) {
+    _renderBlock(blockModel: BlockModel) {
+        switch (blockModel.type) {
             case 'table':
-                return <TableField pageContext={this.props.pageContext} model={fieldModel as TableFieldModel} />
+                return <Table pageContext={this.props.pageContext} model={blockModel as TableModel} />
             default:
-                return <p>JSON.stringify(field)</p>
+                return <p>JSON.stringify(block)</p>
         }
     }
 
@@ -70,7 +83,7 @@ class Page extends React.Component<Props, State> {
                 this.setState({ model: this.cache[pagePath] });
             }
         } else {
-            const url = `/api/page/${pagePath}/index.json`.replace(/\/\/+/g, '\/');
+            const url = `/api/pagemodel/${pagePath}/index.json`.replace(/\/\/+/g, '\/');
             console.log('page model', url);
             axios.get(url)
                 .then((response) => {

@@ -1,12 +1,37 @@
 import * as React from 'react';
 import axios from 'axios';
-import { Table } from 'antd';
-import { Link } from '../Link';
-import { TableFieldModel } from '../Model';
+import { Table as AntdTable } from 'antd';
+import { Link } from '../../Link';
+import { BlockModel } from '../Page';
+
+export interface TableModel extends BlockModel {
+    title?: string;
+    span: number;
+
+    cols: {
+        type: 'text' | 'number'
+        key: string;
+        title: string;
+    }[]
+
+    sortKeys: string[];
+    sortKeyToUpdate?: string;
+
+    fetchHandler: string;
+
+    addRowPage: string;
+
+    editRowPage: string;
+    bulkEdit?: boolean;
+
+    removeRowHandler: string;
+    bulkRemove?: boolean;
+}
+
 
 interface Props {
     pageContext: PageJS.Context;
-    model: TableFieldModel;
+    model: TableModel;
 }
 
 interface State {
@@ -14,7 +39,7 @@ interface State {
     loading: boolean;
 }
 
-class TableField extends React.Component<Props, State> {
+export class Table extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -26,7 +51,7 @@ class TableField extends React.Component<Props, State> {
     render() {
         return (
             <div>
-                <Table
+                <AntdTable
                     columns={this._columns()}
                     dataSource={this._dataSource()}
                     rowSelection={this._rowSelection()}
@@ -84,12 +109,12 @@ class TableField extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        console.log('[TableField] componentDidMount');
+        console.log('[TableBlock] componentDidMount');
         this._fetch();
     }
 
     componentDidUpdate() {
-        console.log('[TableField] componentDidUpdate');
+        console.log('[TableBlock] componentDidUpdate');
         // this._fetch();
     }
 
@@ -105,5 +130,3 @@ class TableField extends React.Component<Props, State> {
             });
     }
 }
-
-export default TableField;

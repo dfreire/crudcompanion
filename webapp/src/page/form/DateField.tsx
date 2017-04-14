@@ -1,5 +1,9 @@
 import * as React from 'react';
-import { DateFieldModel } from '../Model';
+import { FieldModel } from './FieldModel';
+
+export interface DateFieldModel extends FieldModel {
+
+}
 
 interface Props {
     pageContext: PageJS.Context;
@@ -18,7 +22,7 @@ class DateField extends React.Component<Props, State> {
     render() {
         return (
             <div>
-                <h2>Date Field</h2>
+                <h2>DateField</h2>
                 {JSON.stringify(this.props.model)}
             </div>
         );
