@@ -8,15 +8,18 @@ export interface FieldModel {
     span: number;
 }
 
+export interface DateFieldModel extends FieldModel {
+}
+
 export interface TableFieldModel extends FieldModel {
     type: 'table',
     cols: {
         type: 'text' | 'number'
-        name: string;
+        key: string;
         title: string;
     }[]
-    sortOrder: string[];
-    updateSortOrderKey?: string;
+    sortKeys: string[];
+    sortKeyToUpdate?: string;
 
     fetchHandler: string;
 

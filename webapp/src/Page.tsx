@@ -1,7 +1,8 @@
 import * as React from 'react';
 import axios from 'axios';
 import { Row, Col } from 'antd';
-import { PageModel, FieldModel } from './Model';
+import { PageModel, FieldModel, TableFieldModel } from './Model';
+import TableField from './fields/TableField';
 
 interface Props {
     pageContext: PageJS.Context;
@@ -29,33 +30,40 @@ class Page extends React.Component<Props, State> {
     }
 
     _renderFields() {
-        return this.state.model.fields.map((field, i) => {
-            return this._renderField(field, i);
+        return this.state.model.fields.map((fieldModel, i) => {
+            return (
+                <Row key={i}>
+                    <Col span={fieldModel.span}>
+                        <h2>{fieldModel.title}</h2>
+                        {this._renderField(fieldModel)}
+                    </Col>
+                </Row>
+            )
         });
     }
 
-    _renderField(field: FieldModel, i: number) {
-        return (
-            <Row key={i}>
-                <Col span={field.span}>
-                    <h1>{field.title}</h1>
-                    <p>{JSON.stringify(field)}</p>
-                </Col>
-            </Row>
-        )
+    _renderField(fieldModel: FieldModel) {
+        switch (fieldModel.type) {
+            case 'table':
+                return <TableField pageContext={this.props.pageContext} model={fieldModel as TableFieldModel} />
+            default:
+                return <p>JSON.stringify(field)</p>
+        }
     }
 
     componentDidMount() {
+        console.log('[Page] componentDidMount');
         this._updateModel();
     }
 
     componentDidUpdate() {
+        console.log('[Page] componentDidUpdate');
         this._updateModel();
     }
 
     _updateModel() {
         const pagePath = this.props.pageContext.path;
-        console.log(pagePath);
+        console.log('pageContextPath', pagePath);
 
         if (this.cache[pagePath] != null) {
             if (this.cache[pagePath] !== this.state.model) {
@@ -63,7 +71,7 @@ class Page extends React.Component<Props, State> {
             }
         } else {
             const url = `/api/page/${pagePath}/index.json`.replace(/\/\/+/g, '\/');
-            console.log(url);
+            console.log('page model', url);
             axios.get(url)
                 .then((response) => {
                     const model = response.data as PageModel;
