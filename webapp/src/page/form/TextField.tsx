@@ -1,19 +1,20 @@
 import * as React from 'react';
-import { FieldModel } from './FieldModel';
+import { Form, Input } from 'antd';
+import { FieldModel } from './Form';
 
-export interface DateFieldModel extends FieldModel {
-
+export interface TextFieldModel extends FieldModel {
+    placeholder?: string;
 }
 
 interface Props {
     pageContext: PageJS.Context;
-    model: DateFieldModel;
+    model: TextFieldModel;
 }
 
 interface State {
 }
 
-class DateField extends React.Component<Props, State> {
+export class TextField extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {};
@@ -21,12 +22,9 @@ class DateField extends React.Component<Props, State> {
 
     render() {
         return (
-            <div>
-                <h2>DateField</h2>
-                {JSON.stringify(this.props.model)}
-            </div>
+            <Form.Item label={this.props.model.title}>
+                <Input placeholder={this.props.model.placeholder} />
+            </Form.Item>
         );
     }
 }
-
-export default DateField;

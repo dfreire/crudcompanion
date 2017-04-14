@@ -51,6 +51,7 @@ export class Table extends React.Component<Props, State> {
     render() {
         return (
             <div>
+                <h2>{this.props.model.title}</h2>
                 <AntdTable
                     columns={this._columns()}
                     dataSource={this._dataSource()}

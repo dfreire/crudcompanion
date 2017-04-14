@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FieldModel } from './FieldModel';
+import { FieldModel } from './Form';
 
 export interface DateFieldModel extends FieldModel {
 
@@ -13,7 +13,7 @@ interface Props {
 interface State {
 }
 
-class DateField extends React.Component<Props, State> {
+export class DateField extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {};
@@ -28,5 +28,3 @@ class DateField extends React.Component<Props, State> {
         );
     }
 }
-
-export default DateField;

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import axios from 'axios';
-import { Row, Col, Button } from 'antd';
+import { Row, Col } from 'antd';
 import { Table, TableModel } from './table/Table';
+import { Form, FormModel } from './form/Form';
 
 interface PageModel {
     blocks: BlockModel[];
@@ -31,14 +32,9 @@ class Page extends React.Component<Props, State> {
 
     render() {
         return (
-            <div>
+            <div style={{ marginTop: 40, marginBottom: 40 }}>
                 {this._renderBlocks()}
-                <Row>
-                    <Col span={24} style={{ textAlign: '_right' }}>
-                        <Button type="primary" style={{ width: 100, marginRight: 10 }}>Save</Button>
-                        <Button style={{ width: 100 }}>Cancel</Button>
-                    </Col>
-                </Row>
+
             </div>
         );
     }
@@ -59,6 +55,8 @@ class Page extends React.Component<Props, State> {
         switch (blockModel.type) {
             case 'table':
                 return <Table pageContext={this.props.pageContext} model={blockModel as TableModel} />
+            case 'form':
+                return <Form pageContext={this.props.pageContext} model={blockModel as FormModel} />
             default:
                 return <p>JSON.stringify(block)</p>
         }
