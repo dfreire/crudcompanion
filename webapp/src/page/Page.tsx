@@ -1,6 +1,6 @@
 import * as React from 'react';
 import axios from 'axios';
-import { Row, Col, Breadcrumb } from 'antd';
+import { Row, Col, Breadcrumb, Dropdown, Icon, Menu } from 'antd';
 import { Link, navigateTo } from '../Link';
 import { cleanUrl } from '../helpers';
 import { Table, TableModel } from './table/Table';
@@ -36,7 +36,14 @@ class Page extends React.Component<Props, State> {
     render() {
         return (
             <div style={{ marginTop: 40, marginBottom: 40 }}>
-                {this._renderBreadcrumb()}
+                <Row>
+                    <Col span={20}>
+                        {this._renderBreadcrumb()}
+                    </Col>
+                    <Col span={4} style={{ textAlign: 'right' }}>
+                        {this._renderLanguage()}
+                    </Col>
+                </Row>
                 {this._renderBlocks()}
             </div>
         );
@@ -57,7 +64,7 @@ class Page extends React.Component<Props, State> {
             const token = tokens[i];
             if (i === 0) {
                 path = "/";
-                breadcrumbs.push(<Breadcrumb.Item key={"home"}><Link text="home" path="/" /></Breadcrumb.Item>);
+                breadcrumbs.push(<Breadcrumb.Item key={"home"}><Link text="Home" path="/" /></Breadcrumb.Item>);
             } else if (i === tokens.length - 1) {
                 breadcrumbs.push(<Breadcrumb.Item key={token}>{token}</Breadcrumb.Item>);
             } else {
@@ -67,13 +74,29 @@ class Page extends React.Component<Props, State> {
         }
 
         return (
-            <Row>
-                <Col span={24}>
-                    <Breadcrumb>
-                        {breadcrumbs}
-                    </Breadcrumb>
-                </Col>
-            </Row>
+            <Breadcrumb>
+                {breadcrumbs}
+            </Breadcrumb>
+        );
+    }
+
+    _renderLanguage() {
+        const menu = (
+            <Menu>
+                <Menu.Item>PT</Menu.Item>
+                <Menu.Item>EN</Menu.Item>
+                <Menu.Item>DE</Menu.Item>
+                <Menu.Item>FR</Menu.Item>
+                <Menu.Item>JA</Menu.Item>
+            </Menu>
+        );
+
+        return (
+            <Dropdown overlay={menu}>
+                <a className="ant-dropdown-link">
+                    PT <Icon type="down" />
+                </a>
+            </Dropdown>
         );
     }
 
