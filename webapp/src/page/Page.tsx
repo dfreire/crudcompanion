@@ -1,6 +1,6 @@
 import * as React from 'react';
 import axios from 'axios';
-import { Row, Col } from 'antd';
+import { Row, Col, Breadcrumb } from 'antd';
 import { Link, navigateTo } from '../Link';
 import { cleanUrl } from '../helpers';
 import { Table, TableModel } from './table/Table';
@@ -36,9 +36,44 @@ class Page extends React.Component<Props, State> {
     render() {
         return (
             <div style={{ marginTop: 40, marginBottom: 40 }}>
-                <Link text="home" path="/" />
+                {this._renderBreadcrumb()}
                 {this._renderBlocks()}
             </div>
+        );
+    }
+
+    _renderBreadcrumb() {
+        let tokens = this.props.pageContext.pathname.split('/');
+
+        if (tokens[tokens.length - 1 ] === "") {
+            tokens.pop();
+        }
+
+        console.log('tokens', JSON.stringify(tokens));
+
+        const breadcrumbs = [];
+        let path = "";
+        for (let i = 0; i < tokens.length; i++) {
+            const token = tokens[i];
+            if (i === 0) {
+                path = "/";
+                breadcrumbs.push(<Breadcrumb.Item key={"home"}><Link text="home" path="/" /></Breadcrumb.Item>);
+            } else if (i === tokens.length - 1) {
+                breadcrumbs.push(<Breadcrumb.Item key={token}>{token}</Breadcrumb.Item>);
+            } else {
+                path += "/" + token;                
+                breadcrumbs.push(<Breadcrumb.Item key={token}><Link text={token} path={path} /></Breadcrumb.Item>);
+            }
+        }
+
+        return (
+            <Row>
+                <Col span={24}>
+                    <Breadcrumb>
+                        {breadcrumbs}
+                    </Breadcrumb>
+                </Col>
+            </Row>
         );
     }
 
