@@ -1,7 +1,8 @@
 import * as React from 'react';
 import axios from 'axios';
 import { Row, Col } from 'antd';
-import { navigateTo } from '../Link';
+import { Link, navigateTo } from '../Link';
+import { cleanUrl } from '../helpers';
 import { Table, TableModel } from './table/Table';
 import { Form, FormModel } from './form/Form';
 
@@ -35,8 +36,8 @@ class Page extends React.Component<Props, State> {
     render() {
         return (
             <div style={{ marginTop: 40, marginBottom: 40 }}>
+                <Link text="home" path="/" />
                 {this._renderBlocks()}
-
             </div>
         );
     }
@@ -76,15 +77,15 @@ class Page extends React.Component<Props, State> {
     }
 
     _updateModel() {
-        const pagePath = this.props.pageContext.path;
-        console.log('pageContextPath', pagePath);
+        const pathname = this.props.pageContext.pathname;
+        console.log('pathname', pathname);
 
-        if (this.cache[pagePath] != null) {
-            if (this.cache[pagePath] !== this.state.model) {
-                this.setState({ model: this.cache[pagePath] });
+        if (this.cache[pathname] != null) {
+            if (this.cache[pathname] !== this.state.model) {
+                this.setState({ model: this.cache[pathname] });
             }
         } else {
-            const url = `/api/pagemodel/${pagePath}/index.json`.replace(/\/\/+/g, '\/');
+            const url = cleanUrl(`/api/pagemodel/${pathname}/index.json`);
             console.log('page model', url);
             axios.get(url)
                 .then((response) => {
@@ -92,7 +93,7 @@ class Page extends React.Component<Props, State> {
                     if (model.redirect != null) {
                         navigateTo(model.redirect);
                     } else {
-                        this.cache[pagePath] = model;
+                        this.cache[pathname] = model;
                         this.setState({ model });
                     }
                 })

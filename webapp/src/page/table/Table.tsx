@@ -1,7 +1,9 @@
 import * as React from 'react';
 import axios from 'axios';
+import * as queryString from 'query-string';
 import { Table as AntdTable } from 'antd';
 import { Link } from '../../Link';
+import { cleanUrl } from '../../helpers';
 import { BlockModel } from '../Page';
 
 export interface TableModel extends BlockModel {
@@ -84,13 +86,15 @@ export class Table extends React.Component<Props, State> {
             title: 'Action',
             key: 'action',
             width: 100,
-            render: (text: string, record: any) => (
-                <span>
-                    <Link text="Edit" path={this.props.model.updatePage} />
-                    <span className="ant-divider" />
-                    <a href="#">Remove</a>
-                </span>
-            ),
+            render: (text: string, record: { id: string }) => {
+                return (
+                    <span>
+                        <Link text="Edit" path={`${this.props.model.updatePage}?${queryString.stringify({ id: record.id })}`} />
+                        <span className="ant-divider" />
+                        <a href="#">Remove</a>
+                    </span>
+                );
+            },
         });
     }
 
@@ -121,7 +125,7 @@ export class Table extends React.Component<Props, State> {
     _fetch() {
         console.log('fetch', this.props.model.getHandler);
         this.setState({ loading: true });
-        axios.get(`/api/${this.props.model.getHandler}`)
+        axios.get(cleanUrl(`/api/${this.props.model.getHandler}`))
             .then((response) => {
                 this.setState({ records: response.data, loading: false });
             })

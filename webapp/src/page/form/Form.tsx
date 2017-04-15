@@ -2,6 +2,7 @@ import * as React from 'react';
 import axios from 'axios';
 import { Form as AntdForm, Button } from 'antd';
 import { navigateTo } from '../../Link';
+import { cleanUrl } from '../../helpers';
 import { BlockModel } from '../Page';
 import { TextField, TextFieldModel } from './TextField';
 
@@ -19,6 +20,7 @@ export interface FormModel extends BlockModel {
 
 export interface FieldModel {
     type: 'text' | 'textarea';
+    key: string;
     title: string;
 }
 
@@ -63,9 +65,15 @@ export class Form extends React.Component<Props, State> {
     }
 
     _renderField(fieldModel: FieldModel) {
+        const value = this.state.record[fieldModel.key];
+        console.log('record', this.state.record);
+        console.log('key', fieldModel.key);
+        console.log('value', value);
+
+
         switch (fieldModel.type) {
             case 'text':
-                return <TextField {...this.props} model={fieldModel as TextFieldModel} />
+                return <TextField {...this.props} model={fieldModel as TextFieldModel} value={value} />
             default:
                 return <div />
         }
@@ -92,7 +100,7 @@ export class Form extends React.Component<Props, State> {
 
     componentDidMount() {
         console.log('[FormBlock] componentDidMount');
-        //this._fetch();
+        this._fetch();
     }
 
     componentDidUpdate() {
@@ -103,7 +111,7 @@ export class Form extends React.Component<Props, State> {
     _fetch() {
         console.log('fetch', this.props.model.getHandler);
         this.setState({ loading: true });
-        axios.get(`/api/${this.props.model.getHandler}`)
+        axios.get(cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
             .then((response) => {
                 this.setState({ record: response.data, loading: false });
             })

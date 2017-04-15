@@ -9,6 +9,7 @@ export interface TextFieldModel extends FieldModel {
 interface Props {
     pageContext: PageJS.Context;
     model: TextFieldModel;
+    value: string;
 }
 
 interface State {
@@ -23,7 +24,7 @@ export class TextField extends React.Component<Props, State> {
     render() {
         return (
             <Form.Item label={this.props.model.title}>
-                <Input placeholder={this.props.model.placeholder} />
+                <Input placeholder={this.props.model.placeholder} value={this.props.value} />
             </Form.Item>
         );
     }
