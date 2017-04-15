@@ -45,7 +45,7 @@ class Page extends React.Component<Props, State> {
     _renderBreadcrumb() {
         let tokens = this.props.pageContext.pathname.split('/');
 
-        if (tokens[tokens.length - 1 ] === "") {
+        if (tokens[tokens.length - 1] === "") {
             tokens.pop();
         }
 
@@ -61,7 +61,7 @@ class Page extends React.Component<Props, State> {
             } else if (i === tokens.length - 1) {
                 breadcrumbs.push(<Breadcrumb.Item key={token}>{token}</Breadcrumb.Item>);
             } else {
-                path += "/" + token;                
+                path += "/" + token;
                 breadcrumbs.push(<Breadcrumb.Item key={token}><Link text={token} path={path} /></Breadcrumb.Item>);
             }
         }
@@ -116,8 +116,11 @@ class Page extends React.Component<Props, State> {
         console.log('pathname', pathname);
 
         if (this.cache[pathname] != null) {
-            if (this.cache[pathname] !== this.state.model) {
-                this.setState({ model: this.cache[pathname] });
+            const cachedModel = this.cache[pathname];
+            if (cachedModel.redirect != null) {
+                navigateTo(cachedModel.redirect);
+            } else if (cachedModel !== this.state.model) {
+                this.setState({ model: cachedModel });
             }
         } else {
             const url = cleanUrl(`/api/pagemodel/${pathname}/index.json`);
@@ -125,10 +128,10 @@ class Page extends React.Component<Props, State> {
             axios.get(url)
                 .then((response) => {
                     const model = response.data as PageModel;
+                    this.cache[pathname] = model;
                     if (model.redirect != null) {
                         navigateTo(model.redirect);
                     } else {
-                        this.cache[pathname] = model;
                         this.setState({ model });
                     }
                 })

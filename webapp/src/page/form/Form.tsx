@@ -5,6 +5,7 @@ import { navigateTo } from '../../Link';
 import { cleanUrl } from '../../helpers';
 import { BlockModel } from '../Page';
 import { TextField, TextFieldModel } from './TextField';
+import { TextAreaField, TextAreaFieldModel } from './TextAreaField';
 
 export interface FormModel extends BlockModel {
     title?: string;
@@ -66,14 +67,21 @@ export class Form extends React.Component<Props, State> {
 
     _renderField(fieldModel: FieldModel) {
         const value = this.state.record[fieldModel.key];
-        console.log('record', this.state.record);
-        console.log('key', fieldModel.key);
-        console.log('value', value);
 
+        const commonProps = Object.assign({}, this.props, {
+            value,
+            onChange: (fieldKey: string, evt: any) => {
+                let record = Object.assign({}, this.state.record);
+                record[fieldKey] = evt.target.value;
+                this.setState({ record });
+            }
+        });
 
         switch (fieldModel.type) {
             case 'text':
-                return <TextField {...this.props} model={fieldModel as TextFieldModel} value={value} />
+                return <TextField {...commonProps} model={fieldModel as TextFieldModel} />
+            case 'textarea':
+                return <TextAreaField {...commonProps} model={fieldModel as TextAreaFieldModel} />
             default:
                 return <div />
         }
