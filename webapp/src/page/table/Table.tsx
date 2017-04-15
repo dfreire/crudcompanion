@@ -17,15 +17,14 @@ export interface TableModel extends BlockModel {
     sortKeys: string[];
     sortKeyToUpdate?: string;
 
-    fetchHandler: string;
+    getHandler: string;
+    deleteHandler: string;
+    bulkDelete?: boolean;
 
-    addRowPage: string;
+    createPage: string;
 
-    editRowPage: string;
-    bulkEdit?: boolean;
-
-    removeRowHandler: string;
-    bulkRemove?: boolean;
+    updatePage: string;
+    bulkUpdate?: boolean;
 }
 
 
@@ -75,9 +74,9 @@ export class Table extends React.Component<Props, State> {
     _columns() {
         const cols: any[] = this.props.model.cols.map((col) => {
             return {
+                key: col.key,
                 title: col.title,
                 dataIndex: col.key,
-                key: col.key,
             };
         });
 
@@ -87,7 +86,7 @@ export class Table extends React.Component<Props, State> {
             width: 100,
             render: (text: string, record: any) => (
                 <span>
-                    <Link text="Edit" path={this.props.model.editRowPage} />
+                    <Link text="Edit" path={this.props.model.updatePage} />
                     <span className="ant-divider" />
                     <a href="#">Remove</a>
                 </span>
@@ -120,9 +119,9 @@ export class Table extends React.Component<Props, State> {
     }
 
     _fetch() {
-        console.log('fetch', this.props.model.fetchHandler);
+        console.log('fetch', this.props.model.getHandler);
         this.setState({ loading: true });
-        axios.get(`/api/${this.props.model.fetchHandler}`)
+        axios.get(`/api/${this.props.model.getHandler}`)
             .then((response) => {
                 this.setState({ records: response.data, loading: false });
             })

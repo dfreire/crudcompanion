@@ -9,8 +9,11 @@ export interface FormModel extends BlockModel {
     title?: string;
     span: number;
     fields: FieldModel[]
-    fetchHandler: string;
-    saveHandler: string;
+    getHandler: string;
+    saveHandler: {
+        method: 'POST' | 'PUT' | 'PATCH';
+        url: string;
+    };
     cancelPage: string;
 }
 
@@ -26,7 +29,7 @@ interface Props {
 }
 
 interface State {
-    records: any[];
+    record: object;
     loading: boolean;
 }
 
@@ -34,7 +37,7 @@ export class Form extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            records: [],
+            record: {},
             loading: false,
         };
     }
@@ -98,11 +101,11 @@ export class Form extends React.Component<Props, State> {
     }
 
     _fetch() {
-        console.log('fetch', this.props.model.fetchHandler);
+        console.log('fetch', this.props.model.getHandler);
         this.setState({ loading: true });
-        axios.get(`/api/${this.props.model.fetchHandler}`)
+        axios.get(`/api/${this.props.model.getHandler}`)
             .then((response) => {
-                this.setState({ records: response.data, loading: false });
+                this.setState({ record: response.data, loading: false });
             })
             .catch((error) => {
                 console.error(error);
