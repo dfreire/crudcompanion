@@ -1,6 +1,9 @@
 import * as React from 'react';
 import * as page from 'page';
+import axios from 'axios';
 import Page from './page/Page';
+
+export type Language = string;
 
 interface Props {
 
@@ -8,6 +11,7 @@ interface Props {
 
 interface State {
     pageContext?: PageJS.Context;
+    languages?: Language[];
 }
 
 class App extends React.Component<Props, State> {
@@ -32,11 +36,29 @@ class App extends React.Component<Props, State> {
     }
 
     _renderPage() {
-        if (this.state.pageContext != null) {
-            return <Page pageContext={this.state.pageContext} />;
-        } else {
+        const { pageContext, languages } = this.state;
+
+        if (pageContext == null || languages == null) {
             return <div />;
+
+        } else {
+            return (
+                <Page
+                    pageContext={pageContext}
+                    languages={languages}
+                />
+            );
         }
+    }
+
+    componentDidMount() {
+        axios.get("/api/contentmodel/languages.json")
+            .then((response) => {
+                this.setState({ languages: response.data as Language[] });
+            })
+            .catch((error) => {
+                console.error(error);
+            });
     }
 }
 

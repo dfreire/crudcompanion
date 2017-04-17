@@ -2,6 +2,7 @@ import * as React from 'react';
 import axios from 'axios';
 import { Form as AntdForm, Button } from 'antd';
 import { navigateTo } from '../../Link';
+import { Language } from '../../App';
 import { cleanUrl } from '../../helpers';
 import { BlockModel } from '../Page';
 import { TextField, TextFieldModel } from './TextField';
@@ -28,6 +29,7 @@ export interface FieldModel {
 
 interface Props {
     pageContext: PageJS.Context;
+    language: Language;
     model: FormModel;
 }
 

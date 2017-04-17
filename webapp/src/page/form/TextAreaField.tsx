@@ -4,6 +4,7 @@ import { FieldModel } from './Form';
 
 export interface TextAreaFieldModel extends FieldModel {
     placeholder?: string;
+    isTranslatable?: boolean;
     rows?: number;
 }
 

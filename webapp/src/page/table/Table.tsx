@@ -3,6 +3,7 @@ import axios from 'axios';
 import * as queryString from 'query-string';
 import { Table as AntdTable } from 'antd';
 import { Link } from '../../Link';
+import { Language } from '../../App';
 import { cleanUrl } from '../../helpers';
 import { BlockModel } from '../Page';
 
@@ -14,6 +15,7 @@ export interface TableModel extends BlockModel {
         type: 'text' | 'number'
         key: string;
         title: string;
+        isTranslatable?: boolean;
     }[]
 
     sortKeys: string[];
@@ -32,6 +34,7 @@ export interface TableModel extends BlockModel {
 
 interface Props {
     pageContext: PageJS.Context;
+    language: Language;
     model: TableModel;
 }
 

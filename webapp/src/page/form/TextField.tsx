@@ -4,6 +4,7 @@ import { FieldModel } from './Form';
 
 export interface TextFieldModel extends FieldModel {
     placeholder?: string;
+    isTranslatable?: boolean;
 }
 
 interface Props {

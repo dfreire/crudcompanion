@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Row, Col, Breadcrumb, Dropdown, Icon, Menu } from 'antd';
 import { Link, navigateTo } from '../Link';
 import { cleanUrl } from '../helpers';
+import { Language } from '../App';
 import { Table, TableModel } from './table/Table';
 import { Form, FormModel } from './form/Form';
 
@@ -18,10 +19,12 @@ export interface BlockModel {
 
 interface Props {
     pageContext: PageJS.Context;
+    languages: Language[];
 }
 
 interface State {
     model: PageModel;
+    language: Language;
 }
 
 class Page extends React.Component<Props, State> {
@@ -29,8 +32,11 @@ class Page extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        this.state = { model: { blocks: [] } };
         this.cache = {};
+        this.state = {
+            model: { blocks: [] },
+            language: this.props.languages[0],
+        };
     }
 
     render() {
@@ -81,20 +87,24 @@ class Page extends React.Component<Props, State> {
     }
 
     _renderLanguage() {
+        const onClick = (param: {item: any, key: any, keyPath: any}) => {
+            this.setState({ language: param.key as Language });
+        }
+
+        const uppercase = { textTransform: 'uppercase' };
+
         const menu = (
-            <Menu>
-                <Menu.Item>PT</Menu.Item>
-                <Menu.Item>EN</Menu.Item>
-                <Menu.Item>DE</Menu.Item>
-                <Menu.Item>FR</Menu.Item>
-                <Menu.Item>JA</Menu.Item>
+            <Menu onClick={onClick}>
+                {this.props.languages.map((language) => {
+                    return <Menu.Item key={language} style={uppercase}>{language}</Menu.Item>;
+                })}
             </Menu>
         );
 
         return (
             <Dropdown overlay={menu}>
-                <a className="ant-dropdown-link">
-                    PT <Icon type="down" />
+                <a className="ant-dropdown-link" style={uppercase}>
+                    {this.state.language} <Icon type="down" />
                 </a>
             </Dropdown>
         );
@@ -114,11 +124,16 @@ class Page extends React.Component<Props, State> {
     }
 
     _renderBlock(blockModel: BlockModel) {
+        const commonProps = {
+            pageContext: this.props.pageContext,
+            language: this.state.language,
+        };
+
         switch (blockModel.type) {
             case 'table':
-                return <Table pageContext={this.props.pageContext} model={blockModel as TableModel} />
+                return <Table {...commonProps} model={blockModel as TableModel} />
             case 'form':
-                return <Form pageContext={this.props.pageContext} model={blockModel as FormModel} />
+                return <Form {...commonProps} model={blockModel as FormModel} />
             default:
                 return <p>JSON.stringify(block)</p>
         }
@@ -146,7 +161,7 @@ class Page extends React.Component<Props, State> {
                 this.setState({ model: cachedModel });
             }
         } else {
-            const url = cleanUrl(`/api/pagemodel/${pathname}/index.json`);
+            const url = cleanUrl(`/api/contentmodel/${pathname}/index.json`);
             console.log('page model', url);
             axios.get(url)
                 .then((response) => {
