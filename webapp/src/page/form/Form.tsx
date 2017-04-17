@@ -1,9 +1,7 @@
 import * as React from 'react';
-import axios from 'axios';
 import { Form as AntdForm, Button } from 'antd';
+import { get } from '../../Ajax';
 import { navigateTo } from '../../Link';
-import { Language } from '../../App';
-import { cleanUrl } from '../../helpers';
 import { BlockModel } from '../Page';
 import { TextField, TextFieldModel } from './TextField';
 import { TextAreaField, TextAreaFieldModel } from './TextAreaField';
@@ -29,7 +27,6 @@ export interface FieldModel {
 
 interface Props {
     pageContext: PageJS.Context;
-    language: Language;
     model: FormModel;
 }
 
@@ -119,14 +116,10 @@ export class Form extends React.Component<Props, State> {
     }
 
     _fetch() {
-        console.log('fetch', this.props.model.getHandler);
         this.setState({ loading: true });
-        axios.get(cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
+        get(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`)
             .then((response) => {
-                this.setState({ record: response.data, loading: false });
+                this.setState({ record: response, loading: false });
             })
-            .catch((error) => {
-                console.error(error);
-            });
     }
 }

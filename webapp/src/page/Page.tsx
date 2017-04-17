@@ -1,8 +1,7 @@
 import * as React from 'react';
-import axios from 'axios';
 import { Row, Col, Breadcrumb, Dropdown, Icon, Menu } from 'antd';
 import { Link, navigateTo } from '../Link';
-import { cleanUrl } from '../helpers';
+import { get } from '../Ajax';
 import { Language } from '../App';
 import { Table, TableModel } from './table/Table';
 import { Form, FormModel } from './form/Form';
@@ -24,7 +23,6 @@ interface Props {
 
 interface State {
     model: PageModel;
-    language: Language;
 }
 
 class Page extends React.Component<Props, State> {
@@ -35,7 +33,6 @@ class Page extends React.Component<Props, State> {
         this.cache = {};
         this.state = {
             model: { blocks: [] },
-            language: this.props.languages[0],
         };
     }
 
@@ -62,8 +59,6 @@ class Page extends React.Component<Props, State> {
             tokens.pop();
         }
 
-        console.log('tokens', JSON.stringify(tokens));
-
         const breadcrumbs = [];
         let path = "";
         for (let i = 0; i < tokens.length; i++) {
@@ -74,7 +69,7 @@ class Page extends React.Component<Props, State> {
             } else if (i === tokens.length - 1) {
                 breadcrumbs.push(<Breadcrumb.Item key={token}>{token}</Breadcrumb.Item>);
             } else {
-                path += "/" + token;
+                path += token + "/";
                 breadcrumbs.push(<Breadcrumb.Item key={token}><Link text={token} path={path} /></Breadcrumb.Item>);
             }
         }
@@ -87,10 +82,14 @@ class Page extends React.Component<Props, State> {
     }
 
     _renderLanguage() {
-        const onClick = (param: {item: any, key: any, keyPath: any}) => {
-            this.setState({ language: param.key as Language });
+        const onClick = (param: {item: any, key: string, keyPath: any}) => {
+            const tokens = this.props.pageContext.path.split('/');
+            tokens[1] = param.key; // language
+            const newPath = tokens.join('/');
+            navigateTo(newPath);
         }
 
+        const language = this.props.pageContext.pathname.split('/')[1];
         const uppercase = { textTransform: 'uppercase' };
 
         const menu = (
@@ -104,7 +103,7 @@ class Page extends React.Component<Props, State> {
         return (
             <Dropdown overlay={menu}>
                 <a className="ant-dropdown-link" style={uppercase}>
-                    {this.state.language} <Icon type="down" />
+                    {language} <Icon type="down" />
                 </a>
             </Dropdown>
         );
@@ -126,7 +125,6 @@ class Page extends React.Component<Props, State> {
     _renderBlock(blockModel: BlockModel) {
         const commonProps = {
             pageContext: this.props.pageContext,
-            language: this.state.language,
         };
 
         switch (blockModel.type) {
@@ -151,8 +149,6 @@ class Page extends React.Component<Props, State> {
 
     _updateModel() {
         const pathname = this.props.pageContext.pathname;
-        console.log('pathname', pathname);
-
         if (this.cache[pathname] != null) {
             const cachedModel = this.cache[pathname];
             if (cachedModel.redirect != null) {
@@ -161,20 +157,15 @@ class Page extends React.Component<Props, State> {
                 this.setState({ model: cachedModel });
             }
         } else {
-            const url = cleanUrl(`/api/contentmodel/${pathname}/index.json`);
-            console.log('page model', url);
-            axios.get(url)
+            get(`/api/contentmodel/${pathname}/index.json`)
                 .then((response) => {
-                    const model = response.data as PageModel;
+                    const model = response as PageModel;
                     this.cache[pathname] = model;
                     if (model.redirect != null) {
                         navigateTo(model.redirect);
                     } else {
                         this.setState({ model });
                     }
-                })
-                .catch((error) => {
-                    console.error(error);
                 });
         }
     }

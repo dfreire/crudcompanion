@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as page from 'page';
-import axios from 'axios';
+import { get } from './Ajax';
 import Page from './page/Page';
 
 export type Language = string;
@@ -52,12 +52,9 @@ class App extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        axios.get("/api/contentmodel/languages.json")
-            .then((response) => {
-                this.setState({ languages: response.data as Language[] });
-            })
-            .catch((error) => {
-                console.error(error);
+        get("/api/contentmodel/languages.json")
+            .then((languages) => {
+                this.setState({ languages });
             });
     }
 }

@@ -1,10 +1,8 @@
 import * as React from 'react';
-import axios from 'axios';
 import * as queryString from 'query-string';
 import { Table as AntdTable } from 'antd';
+import { get } from '../../Ajax';
 import { Link } from '../../Link';
-import { Language } from '../../App';
-import { cleanUrl } from '../../helpers';
 import { BlockModel } from '../Page';
 
 export interface TableModel extends BlockModel {
@@ -34,7 +32,6 @@ export interface TableModel extends BlockModel {
 
 interface Props {
     pageContext: PageJS.Context;
-    language: Language;
     model: TableModel;
 }
 
@@ -126,14 +123,10 @@ export class Table extends React.Component<Props, State> {
     }
 
     _fetch() {
-        console.log('fetch', this.props.model.getHandler);
         this.setState({ loading: true });
-        axios.get(cleanUrl(`/api/${this.props.model.getHandler}`))
+        get(`/api/${this.props.model.getHandler}`)
             .then((response) => {
-                this.setState({ records: response.data, loading: false });
-            })
-            .catch((error) => {
-                console.error(error);
+                this.setState({ records: response, loading: false });
             });
     }
 }
