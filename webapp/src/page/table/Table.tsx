@@ -40,8 +40,6 @@ export class Table extends React.Component<Props, State> {
         );
     }
 
-
-
     _dataSource() {
         return this.state.records.map((record) => {
             return Object.assign({}, record, { key: record.id });
@@ -62,9 +60,15 @@ export class Table extends React.Component<Props, State> {
             key: 'action',
             width: 100,
             render: (text: string, record: { id: string }) => {
+
+                const updateQueryString = queryString.stringify(Object.assign(
+                    queryString.parse(this.props.pageContext.querystring),
+                    { id: record.id }
+                ));
+
                 return (
                     <span>
-                        <Link text="Edit" path={`${this.props.model.updatePage}?${queryString.stringify({ id: record.id })}`} />
+                        <Link text="Edit" path={`${this.props.model.updatePage}?${updateQueryString}`} />
                         <span className="ant-divider" />
                         <a href="#">Remove</a>
                     </span>
@@ -99,7 +103,7 @@ export class Table extends React.Component<Props, State> {
 
     _fetch() {
         this.setState({ loading: true });
-        get(`/api/${this.props.model.getHandler}`)
+        get(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`)
             .then((response) => {
                 this.setState({ records: response, loading: false });
             });

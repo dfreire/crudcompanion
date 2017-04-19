@@ -1,31 +1,27 @@
 import * as React from 'react';
 import { Row, Col, Breadcrumb, Dropdown, Icon, Menu } from 'antd';
-import { Link, navigateTo } from '../Link';
-import { get } from '../Ajax';
+import { Link } from '../Link';
 import * as Types from '../types/types';
 import { Table } from './table/Table';
 import { Form } from './form/Form';
 
-
-
 interface Props {
     pageContext: PageJS.Context;
     languages: Types.Language[];
+    language: Types.Language;
+    model: Types.PageModel;
+
+    onSelectedLanguage: {(language: Types.Language): void};
 }
 
 interface State {
-    model: Types.PageModel;
 }
 
-class Page extends React.Component<Props, State> {
-    private cache: { [key: string]: Types.PageModel };
+export class Page extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        this.cache = {};
-        this.state = {
-            model: { blocks: [] },
-        };
+        this.state = {};
     }
 
     render() {
@@ -74,14 +70,10 @@ class Page extends React.Component<Props, State> {
     }
 
     _renderLanguage() {
-        const onClick = (param: {item: any, key: string, keyPath: any}) => {
-            const tokens = this.props.pageContext.path.split('/');
-            tokens[1] = param.key; // language
-            const newPath = tokens.join('/');
-            navigateTo(newPath);
+        const onClick = (params: { item: any, key: string, keyPath: any }) => {
+            this.props.onSelectedLanguage(params.key as Types.Language);
         }
 
-        const language = this.props.pageContext.pathname.split('/')[1];
         const uppercase = { textTransform: 'uppercase' };
 
         const menu = (
@@ -95,14 +87,14 @@ class Page extends React.Component<Props, State> {
         return (
             <Dropdown overlay={menu}>
                 <a className="ant-dropdown-link" style={uppercase}>
-                    {language} <Icon type="down" />
+                    {this.props.language} <Icon type="down" />
                 </a>
             </Dropdown>
         );
     }
 
     _renderBlocks() {
-        const blocks = this.state.model.blocks || [];
+        const blocks = this.props.model.blocks || [];
         return blocks.map((blockModel, i) => {
             return (
                 <Row key={i}>
@@ -128,39 +120,4 @@ class Page extends React.Component<Props, State> {
                 return <p>JSON.stringify(block)</p>
         }
     }
-
-    componentDidMount() {
-        console.log('[Page] componentDidMount');
-        this._updateModel();
-    }
-
-    componentDidUpdate() {
-        console.log('[Page] componentDidUpdate');
-        this._updateModel();
-    }
-
-    _updateModel() {
-        const pathname = this.props.pageContext.pathname;
-        if (this.cache[pathname] != null) {
-            const cachedModel = this.cache[pathname];
-            if (cachedModel.redirect != null) {
-                navigateTo(cachedModel.redirect);
-            } else if (cachedModel !== this.state.model) {
-                this.setState({ model: cachedModel });
-            }
-        } else {
-            get(`/api/contentmodel/${pathname}/index.json`)
-                .then((response) => {
-                    const model = response as Types.PageModel;
-                    this.cache[pathname] = model;
-                    if (model.redirect != null) {
-                        navigateTo(model.redirect);
-                    } else {
-                        this.setState({ model });
-                    }
-                });
-        }
-    }
 }
-
-export default Page;

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import * as page from 'page';
+import * as queryString from 'querystring';
 import { get } from './Ajax';
-import Page from './page/Page';
+import { Page } from './page/Page';
 import * as Types from './types/types';
 import * as Ajax from './Ajax';
 
@@ -30,12 +31,11 @@ class App extends React.Component<Props, State> {
                     if (model.redirect != null) {
                         page(model.redirect);
                     } else {
-                        this.setState({ model });
+                        this.setState({ pageContext, model });
                     }
                 });
-
-            this.setState({ pageContext });
         });
+
         page.start({ hashbang: false });
     }
 
@@ -48,26 +48,53 @@ class App extends React.Component<Props, State> {
     }
 
     _renderPage() {
-        const { pageContext, languages } = this.state;
+        const handlers = {
+            onSelectedLanguage: (language: Types.Language) => {
+                this.setState({ language });
+            }
+        }
 
-        if (pageContext == null || languages == null) {
-            return <div />;
-
-        } else {
+        if (this.state.pageContext != null
+            && this.state.languages != null
+            && this.state.language != null
+            && this.state.model != null) {
             return (
                 <Page
-                    pageContext={pageContext}
-                    languages={languages}
+                    pageContext={this.state.pageContext}
+                    languages={this.state.languages}
+                    language={this.state.language}
+                    model={this.state.model}
+                    {...handlers}
                 />
             );
+        } else {
+            return <div />;
         }
     }
 
     componentDidMount() {
         get("/api/contentmodel/website.json")
             .then((response) => {
-                this.setState({ languages: response.languages });
+                let query;
+                if (this.state.pageContext != null) {
+                    query = queryString.parse(this.state.pageContext.querystring);
+                }
+                const languages = response.languages;
+                const language = query.lang || languages[0];
+                this.setState({ languages, language });
             });
+    }
+
+    componentDidUpdate() {
+        if (this.state.pageContext != null) {
+            const query = queryString.parse(this.state.pageContext.querystring);
+            if (query.lang != this.state.language) {
+                query.lang = this.state.language;
+                const url = `${this.state.pageContext.pathname}/?${queryString.stringify(query)}`;
+                const cleanUrl = url.replace(/\/\/+/g, '\/');
+                page(cleanUrl);
+            }
+        }
     }
 }
 
