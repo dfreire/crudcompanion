@@ -3,6 +3,7 @@ import * as queryString from 'query-string';
 import { Table as AntdTable } from 'antd';
 import { get } from '../../Ajax';
 import { Link } from '../../Link';
+import { template } from '../../helpers';
 import { BlockModel } from '../Page';
 
 export interface TableModel extends BlockModel {
@@ -82,6 +83,8 @@ export class Table extends React.Component<Props, State> {
             };
         });
 
+        const updatePageUrl = template(this.props.model.updatePage, this.props.pageContext);
+
         return cols.concat({
             title: 'Action',
             key: 'action',
@@ -89,7 +92,7 @@ export class Table extends React.Component<Props, State> {
             render: (text: string, record: { id: string }) => {
                 return (
                     <span>
-                        <Link text="Edit" path={`${this.props.model.updatePage}?${queryString.stringify({ id: record.id })}`} />
+                        <Link text="Edit" path={`${updatePageUrl}?${queryString.stringify({ id: record.id })}`} />
                         <span className="ant-divider" />
                         <a href="#">Remove</a>
                     </span>

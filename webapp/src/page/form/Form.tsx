@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Form as AntdForm, Button } from 'antd';
 import { get } from '../../Ajax';
 import { navigateTo } from '../../Link';
+import { template } from '../../helpers';
 import { BlockModel } from '../Page';
 import { TextField, TextFieldModel } from './TextField';
 import { TextAreaField, TextAreaFieldModel } from './TextAreaField';
@@ -87,6 +88,11 @@ export class Form extends React.Component<Props, State> {
     }
 
     _renderButtons() {
+        const onCancel = () => {
+            const url = template(this.props.model.cancelPage, this.props.pageContext);
+            navigateTo(url);
+        }
+
         return (
             <div>
                 <Button
@@ -97,7 +103,7 @@ export class Form extends React.Component<Props, State> {
                 </Button>
                 <Button
                     style={{ width: 100 }}
-                    onClick={() => navigateTo(this.props.model.cancelPage)}
+                    onClick={onCancel}
                 >
                     Cancel
                 </Button>
