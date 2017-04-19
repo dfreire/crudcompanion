@@ -2,31 +2,23 @@ import * as React from 'react';
 import { Row, Col, Breadcrumb, Dropdown, Icon, Menu } from 'antd';
 import { Link, navigateTo } from '../Link';
 import { get } from '../Ajax';
-import { Language } from '../App';
-import { Table, TableModel } from './table/Table';
-import { Form, FormModel } from './form/Form';
+import * as Types from '../types/types';
+import { Table } from './table/Table';
+import { Form } from './form/Form';
 
-interface PageModel {
-    redirect?: string;
-    blocks?: BlockModel[];
-}
 
-export interface BlockModel {
-    type: 'table' | 'form';
-    span: number;
-}
 
 interface Props {
     pageContext: PageJS.Context;
-    languages: Language[];
+    languages: Types.Language[];
 }
 
 interface State {
-    model: PageModel;
+    model: Types.PageModel;
 }
 
 class Page extends React.Component<Props, State> {
-    private cache: { [key: string]: PageModel };
+    private cache: { [key: string]: Types.PageModel };
 
     constructor(props: Props) {
         super(props);
@@ -122,16 +114,16 @@ class Page extends React.Component<Props, State> {
         });
     }
 
-    _renderBlock(blockModel: BlockModel) {
+    _renderBlock(blockModel: Types.BlockModel) {
         const commonProps = {
             pageContext: this.props.pageContext,
         };
 
         switch (blockModel.type) {
             case 'table':
-                return <Table {...commonProps} model={blockModel as TableModel} />
+                return <Table {...commonProps} model={blockModel as Types.TableModel} />
             case 'form':
-                return <Form {...commonProps} model={blockModel as FormModel} />
+                return <Form {...commonProps} model={blockModel as Types.FormModel} />
             default:
                 return <p>JSON.stringify(block)</p>
         }
@@ -159,7 +151,7 @@ class Page extends React.Component<Props, State> {
         } else {
             get(`/api/contentmodel/${pathname}/index.json`)
                 .then((response) => {
-                    const model = response as PageModel;
+                    const model = response as Types.PageModel;
                     this.cache[pathname] = model;
                     if (model.redirect != null) {
                         navigateTo(model.redirect);

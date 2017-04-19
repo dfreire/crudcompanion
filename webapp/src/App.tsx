@@ -2,8 +2,8 @@ import * as React from 'react';
 import * as page from 'page';
 import { get } from './Ajax';
 import Page from './page/Page';
-
-export type Language = string;
+import * as Types from './types/types';
+import * as Ajax from './Ajax';
 
 interface Props {
 
@@ -11,7 +11,9 @@ interface Props {
 
 interface State {
     pageContext?: PageJS.Context;
-    languages?: Language[];
+    languages?: Types.Language[];
+    language?: Types.Language;
+    model?: Types.PageModel;
 }
 
 class App extends React.Component<Props, State> {
@@ -22,6 +24,16 @@ class App extends React.Component<Props, State> {
 
     componentWillMount() {
         page('*', (pageContext: PageJS.Context) => {
+            Ajax.get(`/api/contentmodel/${pageContext.pathname}/index.json`)
+                .then((response) => {
+                    const model = response as Types.PageModel;
+                    if (model.redirect != null) {
+                        page(model.redirect);
+                    } else {
+                        this.setState({ model });
+                    }
+                });
+
             this.setState({ pageContext });
         });
         page.start({ hashbang: false });
@@ -52,9 +64,9 @@ class App extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        get("/api/contentmodel/languages.json")
-            .then((languages) => {
-                this.setState({ languages });
+        get("/api/contentmodel/website.json")
+            .then((response) => {
+                this.setState({ languages: response.languages });
             });
     }
 }

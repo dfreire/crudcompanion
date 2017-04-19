@@ -2,33 +2,14 @@ import * as React from 'react';
 import { Form as AntdForm, Button } from 'antd';
 import { get } from '../../Ajax';
 import { navigateTo } from '../../Link';
-import { template } from '../../helpers';
-import { BlockModel } from '../Page';
-import { TextField, TextFieldModel } from './TextField';
-import { TextAreaField, TextAreaFieldModel } from './TextAreaField';
-
-export interface FormModel extends BlockModel {
-    title?: string;
-    span: number;
-    fields: FieldModel[]
-    getHandler: string;
-    saveHandler: {
-        method: 'POST' | 'PUT' | 'PATCH';
-        url: string;
-    };
-    cancelPage: string;
-}
-
-export interface FieldModel {
-    type: 'text' | 'textarea';
-    key: string;
-    title: string;
-}
+import * as Types from '../../types/types';
+import { TextField } from './TextField';
+import { TextAreaField } from './TextAreaField';
 
 
 interface Props {
     pageContext: PageJS.Context;
-    model: FormModel;
+    model: Types.FormModel;
 }
 
 interface State {
@@ -65,7 +46,7 @@ export class Form extends React.Component<Props, State> {
         });
     }
 
-    _renderField(fieldModel: FieldModel) {
+    _renderField(fieldModel: Types.FieldModel) {
         const value = this.state.record[fieldModel.key];
 
         const commonProps = Object.assign({}, this.props, {
@@ -79,9 +60,9 @@ export class Form extends React.Component<Props, State> {
 
         switch (fieldModel.type) {
             case 'text':
-                return <TextField {...commonProps} model={fieldModel as TextFieldModel} />
+                return <TextField {...commonProps} model={fieldModel as Types.TextFieldModel} />
             case 'textarea':
-                return <TextAreaField {...commonProps} model={fieldModel as TextAreaFieldModel} />
+                return <TextAreaField {...commonProps} model={fieldModel as Types.TextAreaFieldModel} />
             default:
                 return <div />
         }
@@ -89,8 +70,7 @@ export class Form extends React.Component<Props, State> {
 
     _renderButtons() {
         const onCancel = () => {
-            const url = template(this.props.model.cancelPage, this.props.pageContext);
-            navigateTo(url);
+            navigateTo(this.props.model.cancelPage);
         }
 
         return (

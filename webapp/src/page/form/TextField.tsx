@@ -1,15 +1,10 @@
 import * as React from 'react';
 import { Form, Input } from 'antd';
-import { FieldModel } from './Form';
-
-export interface TextFieldModel extends FieldModel {
-    placeholder?: string;
-    isTranslatable?: boolean;
-}
+import * as Types from '../../types/types';
 
 interface Props {
     pageContext: PageJS.Context;
-    model: TextFieldModel;
+    model: Types.TextFieldModel;
     value: string;
     onChange: {(fieldKey: string, evt: any): void};
 }

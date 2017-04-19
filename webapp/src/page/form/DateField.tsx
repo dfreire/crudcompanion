@@ -1,13 +1,9 @@
 import * as React from 'react';
-import { FieldModel } from './Form';
-
-export interface DateFieldModel extends FieldModel {
-
-}
+import * as Types from '../../types/types';
 
 interface Props {
     pageContext: PageJS.Context;
-    model: DateFieldModel;
+    model: Types.DateFieldModel;
 }
 
 interface State {
