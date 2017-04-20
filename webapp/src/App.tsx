@@ -1,10 +1,10 @@
 import * as React from 'react';
 import * as page from 'page';
-import * as queryString from 'querystring';
-import { get } from './Ajax';
-import { Page } from './page/Page';
+import * as queryString from 'query-string';
+import * as Util from './Util';
 import * as Types from './types/types';
 import * as Ajax from './Ajax';
+import { Page } from './page/Page';
 
 interface Props {
 
@@ -23,22 +23,6 @@ class App extends React.Component<Props, State> {
         this.state = {};
     }
 
-    componentWillMount() {
-        page('*', (pageContext: PageJS.Context) => {
-            Ajax.get(`/api/contentmodel/${pageContext.pathname}/index.json`)
-                .then((response) => {
-                    const model = response as Types.PageModel;
-                    if (model.redirect != null) {
-                        page(model.redirect);
-                    } else {
-                        this.setState({ pageContext, model });
-                    }
-                });
-        });
-
-        page.start({ hashbang: false });
-    }
-
     render() {
         return (
             <div>
@@ -50,7 +34,12 @@ class App extends React.Component<Props, State> {
     _renderPage() {
         const handlers = {
             onSelectedLanguage: (language: Types.Language) => {
-                this.setState({ language });
+                const { pageContext } = this.state;
+                if (pageContext != null) {
+                    const query = queryString.parse(pageContext.querystring);
+                    query.lang = language;
+                    page(Util.cleanUrl(`${pageContext.pathname}/?${queryString.stringify(query)}`));
+                }
             }
         }
 
@@ -73,28 +62,33 @@ class App extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        get("/api/contentmodel/website.json")
+        console.log('[App] componentDidMount');
+        Ajax.get("/api/contentmodel/website.json")
             .then((response) => {
-                let query;
-                if (this.state.pageContext != null) {
-                    query = queryString.parse(this.state.pageContext.querystring);
-                }
+                page('*', (pageContext: PageJS.Context) => {
+                    Ajax.get(Util.cleanUrl(`/api/contentmodel/${pageContext.pathname}/index.json`))
+                        .then((response) => {
+                            const query = queryString.parse(pageContext.querystring);
+                            const model = response as Types.PageModel;
+
+                            if (query.lang == null) {
+                                query.lang = this.state.language;
+                                page(Util.cleanUrl(`${pageContext.pathname}/?${queryString.stringify(query)}`));
+
+                            } else if (model.redirect != null) {
+                                page(Util.cleanUrl(`${model.redirect}/?${pageContext.querystring}`));
+
+                            } else {
+                                this.setState({ pageContext, language: query.lang, model });
+                            }
+                        });
+                });
+                page.start({ hashbang: false });
+
                 const languages = response.languages;
-                const language = query.lang || languages[0];
+                const language = languages[0];
                 this.setState({ languages, language });
             });
-    }
-
-    componentDidUpdate() {
-        if (this.state.pageContext != null) {
-            const query = queryString.parse(this.state.pageContext.querystring);
-            if (query.lang != this.state.language) {
-                query.lang = this.state.language;
-                const url = `${this.state.pageContext.pathname}/?${queryString.stringify(query)}`;
-                const cleanUrl = url.replace(/\/\/+/g, '\/');
-                page(cleanUrl);
-            }
-        }
     }
 }
 

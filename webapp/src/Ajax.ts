@@ -1,9 +1,8 @@
 import axios from 'axios';
+import * as Util from './Util';
 
 export function get(url: string) {
-    const cleanUrl = url.replace(/\/\/+/g, '\/');
-
-    return axios.get(cleanUrl)
+    return axios.get(Util.cleanUrl(url))
         .then((response) => {
             if (response.status >= 200 &&  response.status < 400) {
                 return response.data;

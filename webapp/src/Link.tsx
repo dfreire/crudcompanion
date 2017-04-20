@@ -10,7 +10,6 @@ export function Link(props: LinkProps) {
     const onClick = (evt: React.MouseEvent<any>) => {
         evt.preventDefault();
         evt.stopPropagation();
-        console.log('Link ' + props.path);
         page(props.path);
     };
 
@@ -20,6 +19,5 @@ export function Link(props: LinkProps) {
 }
 
 export function navigateTo(path: string) {
-    console.log('navigateTo ' + path);
     page(path);
 }

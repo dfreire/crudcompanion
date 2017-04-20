@@ -109,6 +109,7 @@ export class Page extends React.Component<Props, State> {
     _renderBlock(blockModel: Types.BlockModel) {
         const commonProps = {
             pageContext: this.props.pageContext,
+            language: this.props.language,
         };
 
         switch (blockModel.type) {

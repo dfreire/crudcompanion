@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Form as AntdForm, Button } from 'antd';
-import { get } from '../../Ajax';
+import * as Util from '../../Util';
+import * as Ajax from '../../Ajax';
 import { navigateTo } from '../../Link';
 import * as Types from '../../types/types';
 import { TextField } from './TextField';
@@ -9,6 +10,7 @@ import { TextAreaField } from './TextAreaField';
 
 interface Props {
     pageContext: PageJS.Context;
+    language: Types.Language;
     model: Types.FormModel;
 }
 
@@ -93,17 +95,22 @@ export class Form extends React.Component<Props, State> {
 
     componentDidMount() {
         console.log('[FormBlock] componentDidMount');
-        this._fetch();
+        if (this.props.pageContext.querystring != null) {
+            this._fetch();
+        }
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(prevProps: Props, prevState: State) {
         console.log('[FormBlock] componentDidUpdate');
-        // this._fetch();
+        if (this.props.pageContext.querystring != null && this.props.pageContext.querystring != prevProps.pageContext.querystring) {
+            this._fetch();
+        }
     }
 
     _fetch() {
+        console.log('[FormBlock] _fetch');
         this.setState({ loading: true });
-        get(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`)
+        Ajax.get(Util.cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
             .then((response) => {
                 this.setState({ record: response, loading: false });
             })

@@ -1,12 +1,14 @@
 import * as React from 'react';
 import * as queryString from 'query-string';
 import { Table as AntdTable } from 'antd';
-import { get } from '../../Ajax';
+import * as Util from '../../Util';
+import * as Ajax from '../../Ajax';
 import { Link } from '../../Link';
 import * as Types from '../../types/types';
 
 interface Props {
     pageContext: PageJS.Context;
+    language: Types.Language;
     model: Types.TableModel;
 }
 
@@ -93,17 +95,22 @@ export class Table extends React.Component<Props, State> {
 
     componentDidMount() {
         console.log('[TableBlock] componentDidMount');
-        this._fetch();
+        if (this.props.pageContext.querystring != null) {
+            this._fetch();
+        }
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(prevProps: Props, prevState: State) {
         console.log('[TableBlock] componentDidUpdate');
-        // this._fetch();
+        if (this.props.pageContext.querystring != null && this.props.pageContext.querystring != prevProps.pageContext.querystring) {
+            this._fetch();
+        }
     }
 
     _fetch() {
+        console.log('[TableBlock] _fetch');
         this.setState({ loading: true });
-        get(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`)
+        Ajax.get(Util.cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
             .then((response) => {
                 this.setState({ records: response, loading: false });
             });
