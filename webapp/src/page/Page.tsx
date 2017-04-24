@@ -43,21 +43,21 @@ export class Page extends React.Component<Props, State> {
     _renderBreadcrumb() {
         let tokens = this.props.pageContext.pathname.split('/');
 
-        if (tokens[tokens.length - 1] === "") {
+        if (tokens[tokens.length - 1] === '') {
             tokens.pop();
         }
 
         const breadcrumbs = [];
-        let path = "";
+        let path = '';
         for (let i = 0; i < tokens.length; i++) {
             const token = tokens[i];
             if (i === 0) {
-                path = "/";
-                breadcrumbs.push(<Breadcrumb.Item key={"home"}><Link text="Home" path="/" /></Breadcrumb.Item>);
+                path = '/';
+                breadcrumbs.push(<Breadcrumb.Item key={'home'}><Link text="Home" path="/" /></Breadcrumb.Item>);
             } else if (i === tokens.length - 1) {
                 breadcrumbs.push(<Breadcrumb.Item key={token}>{token}</Breadcrumb.Item>);
             } else {
-                path += token + "/";
+                path += token + '/';
                 breadcrumbs.push(<Breadcrumb.Item key={token}><Link text={token} path={path} /></Breadcrumb.Item>);
             }
         }
@@ -72,7 +72,7 @@ export class Page extends React.Component<Props, State> {
     _renderLanguage() {
         const onClick = (params: { item: any, key: string, keyPath: any }) => {
             this.props.onSelectedLanguage(params.key as Types.Language);
-        }
+        };
 
         const uppercase = { textTransform: 'uppercase' };
 
@@ -102,7 +102,7 @@ export class Page extends React.Component<Props, State> {
                         {this._renderBlock(blockModel)}
                     </Col>
                 </Row>
-            )
+            );
         });
     }
 
@@ -114,11 +114,11 @@ export class Page extends React.Component<Props, State> {
 
         switch (blockModel.type) {
             case 'table':
-                return <Table {...commonProps} model={blockModel as Types.TableModel} />
+                return <Table {...commonProps} model={blockModel as Types.TableModel} />;
             case 'form':
-                return <Form {...commonProps} model={blockModel as Types.FormModel} />
+                return <Form {...commonProps} model={blockModel as Types.FormModel} />;
             default:
-                return <p>JSON.stringify(block)</p>
+                return <p>JSON.stringify(block)</p>;
         }
     }
 }

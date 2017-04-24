@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as queryString from 'query-string';
-import { Table as AntdTable } from 'antd';
+import {Table as AntdTable, Button, Menu, Dropdown, Icon} from 'antd';
 import * as Util from '../../Util';
 import * as Ajax from '../../Ajax';
-import { Link } from '../../Link';
+import {Link, navigateTo} from '../../Link';
 import * as Types from '../../types/types';
 
 interface Props {
@@ -17,12 +17,13 @@ interface State {
     loading: boolean;
 }
 
-export class Table extends React.Component<Props, State> {
+export class Table extends React.Component < Props,
+State > {
     constructor(props: Props) {
         super(props);
         this.state = {
             records: [],
-            loading: false,
+            loading: false
         };
     }
 
@@ -37,24 +38,51 @@ export class Table extends React.Component<Props, State> {
                     size="middle"
                     bordered={true}
                     loading={this.state.loading}
+                    locale={{
+                        filterConfirm: 'Ok',
+                        filterReset: 'Reset',
+                        emptyText: 'No Data' 
+                    }}
                 />
+                {this._renderButtons()}
+            </div>
+        );
+    }
+
+    _renderButtons() {
+        const menu = (
+            <Menu onClick={() => {}}>
+                <Menu.Item key="1">Remove</Menu.Item>
+            </Menu>
+        );
+
+        return (
+            <div style={{ textAlign: 'left' }}>
+                <Button
+                    type="primary"
+                    style={{ width: 100, marginTop: 10, marginBottom: 10 }}
+                    onClick={() => navigateTo(this.props.model.createPage)}
+                >
+                    Create
+                </Button>
+                <Dropdown overlay={menu}>
+                    <Button style={{ marginLeft: 10 }}>
+                    With selected... <Icon type="down" />
+                    </Button>
+                </Dropdown>
             </div>
         );
     }
 
     _dataSource() {
         return this.state.records.map((record) => {
-            return Object.assign({}, record, { key: record.id });
+            return Object.assign({}, record, {key: record.id});
         });
     }
 
     _columns() {
         const cols: any[] = this.props.model.cols.map((col) => {
-            return {
-                key: col.key,
-                title: col.title,
-                dataIndex: col.key,
-            };
+            return {key: col.key, title: col.title, dataIndex: col.key};
         });
 
         return cols.concat({
@@ -62,20 +90,17 @@ export class Table extends React.Component<Props, State> {
             key: 'action',
             width: 100,
             render: (text: string, record: { id: string }) => {
-
-                const updateQueryString = queryString.stringify(Object.assign(
-                    queryString.parse(this.props.pageContext.querystring),
-                    { id: record.id }
-                ));
-
+                const updateQueryString = queryString.stringify(
+                    Object.assign(queryString.parse(this.props.pageContext.querystring), {id: record.id})
+                );
                 return (
                     <span>
-                        <Link text="Edit" path={`${this.props.model.updatePage}?${updateQueryString}`} />
-                        <span className="ant-divider" />
+                        <Link text="Edit" path={`${this.props.model.updatePage}?${updateQueryString}`}/>
+                        <span className="ant-divider"/>
                         <a href="#">Remove</a>
                     </span>
                 );
-            },
+            }
         });
     }
 
@@ -89,7 +114,7 @@ export class Table extends React.Component<Props, State> {
             },
             onSelectAll: (selected: any, selectedRows: any, changeRows: any) => {
                 console.log('onSelectAll', selected, selectedRows, changeRows);
-            },
+            }
         };
     }
 
@@ -102,17 +127,19 @@ export class Table extends React.Component<Props, State> {
 
     componentDidUpdate(prevProps: Props, prevState: State) {
         console.log('[TableBlock] componentDidUpdate');
-        if (this.props.pageContext.querystring != null && this.props.pageContext.querystring != prevProps.pageContext.querystring) {
+        if (this.props.pageContext.querystring != null
+            && this.props.pageContext.querystring !== prevProps.pageContext.querystring) {
             this._fetch();
         }
     }
 
     _fetch() {
         console.log('[TableBlock] _fetch');
-        this.setState({ loading: true });
-        Ajax.get(Util.cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
+        this.setState({loading: true});
+        Ajax
+            .get(Util.cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
             .then((response) => {
-                this.setState({ records: response, loading: false });
+                this.setState({records: response, loading: false});
             });
     }
 }

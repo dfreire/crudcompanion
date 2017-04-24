@@ -19,7 +19,7 @@ export interface TableModel extends BlockModel {
         key: string;
         title: string;
         isTranslatable?: boolean;
-    }[]
+    }[];
 
     sortKeys: string[];
 
@@ -36,12 +36,9 @@ export interface TableModel extends BlockModel {
 export interface FormModel extends BlockModel {
     title?: string;
     span: number;
-    fields: FieldModel[]
+    fields: FieldModel[];
     getHandler: string;
-    saveHandler: {
-        method: 'POST' | 'PUT' | 'PATCH';
-        url: string;
-    };
+    saveHandler: string;
     cancelPage: string;
 }
 

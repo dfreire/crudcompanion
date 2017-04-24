@@ -41,7 +41,7 @@ class App extends React.Component<Props, State> {
                     page(Util.cleanUrl(`${pageContext.pathname}/?${queryString.stringify(query)}`));
                 }
             }
-        }
+        };
 
         if (this.state.pageContext != null
             && this.state.languages != null
@@ -63,13 +63,12 @@ class App extends React.Component<Props, State> {
 
     componentDidMount() {
         console.log('[App] componentDidMount');
-        Ajax.get("/api/contentmodel/website.json")
+        Ajax.get('/api/contentmodel/website.json')
             .then((response) => {
                 page('*', (pageContext: PageJS.Context) => {
                     Ajax.get(Util.cleanUrl(`/api/contentmodel/${pageContext.pathname}/index.json`))
-                        .then((response) => {
+                        .then((model: Types.PageModel) => {
                             const query = queryString.parse(pageContext.querystring);
-                            const model = response as Types.PageModel;
 
                             if (query.lang == null) {
                                 query.lang = this.state.language;

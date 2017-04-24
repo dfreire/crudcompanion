@@ -7,7 +7,6 @@ import * as Types from '../../types/types';
 import { TextField } from './TextField';
 import { TextAreaField } from './TextAreaField';
 
-
 interface Props {
     pageContext: PageJS.Context;
     language: Types.Language;
@@ -62,29 +61,38 @@ export class Form extends React.Component<Props, State> {
 
         switch (fieldModel.type) {
             case 'text':
-                return <TextField {...commonProps} model={fieldModel as Types.TextFieldModel} />
+                return <TextField {...commonProps} model={fieldModel as Types.TextFieldModel} />;
             case 'textarea':
-                return <TextAreaField {...commonProps} model={fieldModel as Types.TextAreaFieldModel} />
+                return <TextAreaField {...commonProps} model={fieldModel as Types.TextAreaFieldModel} />;
             default:
-                return <div />
+                return <div />;
         }
     }
 
     _renderButtons() {
+        const onSave = () => {
+            console.log(JSON.stringify(this.state.record));
+            Ajax.post(this.props.model.saveHandler, this.state.record)
+                .then(() => {
+                    navigateTo(this.props.model.cancelPage);
+                });
+        };
+
         const onCancel = () => {
             navigateTo(this.props.model.cancelPage);
-        }
+        };
 
         return (
             <div>
                 <Button
                     type="primary"
-                    style={{ width: 100, marginRight: 10 }}
+                    style={{ width: 100 }}
+                    onClick={onSave}                    
                 >
                     Save
                 </Button>
                 <Button
-                    style={{ width: 100 }}
+                    style={{ width: 100, marginLeft: 10 }}
                     onClick={onCancel}
                 >
                     Cancel
@@ -102,7 +110,8 @@ export class Form extends React.Component<Props, State> {
 
     componentDidUpdate(prevProps: Props, prevState: State) {
         console.log('[FormBlock] componentDidUpdate');
-        if (this.props.pageContext.querystring != null && this.props.pageContext.querystring != prevProps.pageContext.querystring) {
+        if (this.props.pageContext.querystring != null
+            && this.props.pageContext.querystring !== prevProps.pageContext.querystring) {
             this._fetch();
         }
     }
@@ -113,6 +122,6 @@ export class Form extends React.Component<Props, State> {
         Ajax.get(Util.cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
             .then((response) => {
                 this.setState({ record: response, loading: false });
-            })
+            });
     }
 }

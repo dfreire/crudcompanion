@@ -21,7 +21,7 @@ export class TextAreaField extends React.Component<Props, State> {
     render() {
         const withRows = {
             rows: this.props.model.rows || 4
-        }
+        };
 
         return (
             <Form.Item label={this.props.model.title}>
