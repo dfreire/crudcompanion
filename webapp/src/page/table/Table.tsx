@@ -14,6 +14,7 @@ interface Props {
 
 interface State {
     records: any[];
+    selectedIds: string[];
     loading: boolean;
 }
 
@@ -23,6 +24,7 @@ export class Table extends React.Component<Props,
         super(props);
         this.state = {
             records: [],
+            selectedIds: [],
             loading: false
         };
     }
@@ -55,9 +57,16 @@ export class Table extends React.Component<Props,
     }
 
     _renderButtons() {
+        const onBulkRemove = () => {
+            Ajax.del(`/api/${this.props.model.removeHandler}/?${queryString.stringify({ id: this.state.selectedIds })}`)
+                .then(() => {
+                    this._fetch();
+                });
+        };
+
         const menu = (
-            <Menu onClick={() => { }}>
-                <Menu.Item key="1">Remove</Menu.Item>
+            <Menu onClick={onBulkRemove}>
+                <Menu.Item key="bulk-remove" disabled={this.state.selectedIds.length === 0}>Remove</Menu.Item>
             </Menu>
         );
 
@@ -123,6 +132,7 @@ export class Table extends React.Component<Props,
         return {
             onChange: (selectedRowKeys: any, selectedRows: any) => {
                 console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+                this.setState({ selectedIds: selectedRowKeys });
             },
             onSelect: (record: any, selected: any, selectedRows: any) => {
                 console.log('onSelect', record, selected, selectedRows);
