@@ -21,14 +21,9 @@ export interface TableModel extends BlockModel {
         isTranslatable?: boolean;
     }[];
 
-    sortKeys: string[];
-
     getHandler: string;
-    deleteHandler: string;
-    bulkDelete?: boolean;
-
+    removeHandler: string;
     createPage: string;
-
     updatePage: string;
     bulkUpdate?: boolean;
 }
@@ -37,8 +32,9 @@ export interface FormModel extends BlockModel {
     title?: string;
     span: number;
     fields: FieldModel[];
-    getHandler: string;
+    getHandler?: string;
     saveHandler: string;
+    removeHandler?: string;
     cancelPage: string;
 }
 

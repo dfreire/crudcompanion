@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as queryString from 'query-string';
-import {Table as AntdTable, Button, Menu, Dropdown, Icon} from 'antd';
+import { Table as AntdTable, Button, Menu, Dropdown, Icon, Popconfirm } from 'antd';
 import * as Util from '../../Util';
 import * as Ajax from '../../Ajax';
-import {Link, navigateTo} from '../../Link';
+import { Link, navigateTo } from '../../Link';
 import * as Types from '../../types/types';
 
 interface Props {
@@ -17,8 +17,8 @@ interface State {
     loading: boolean;
 }
 
-export class Table extends React.Component < Props,
-State > {
+export class Table extends React.Component<Props,
+    State> {
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -31,6 +31,7 @@ State > {
         return (
             <div>
                 <h2>{this.props.model.title}</h2>
+                {this._renderButtons()}
                 <AntdTable
                     columns={this._columns()}
                     dataSource={this._dataSource()}
@@ -41,17 +42,21 @@ State > {
                     locale={{
                         filterConfirm: 'Ok',
                         filterReset: 'Reset',
-                        emptyText: 'No Data' 
+                        emptyText: 'No Data'
+                    }}
+                    pagination={{
+                        size: 'small',
+                        total: 0,
+                        pageSize: 5
                     }}
                 />
-                {this._renderButtons()}
             </div>
         );
     }
 
     _renderButtons() {
         const menu = (
-            <Menu onClick={() => {}}>
+            <Menu onClick={() => { }}>
                 <Menu.Item key="1">Remove</Menu.Item>
             </Menu>
         );
@@ -65,9 +70,9 @@ State > {
                 >
                     Create
                 </Button>
-                <Dropdown overlay={menu}>
+                <Dropdown overlay={menu} placement="bottomLeft">
                     <Button style={{ marginLeft: 10 }}>
-                    With selected... <Icon type="down" />
+                        With selected... <Icon type="down" />
                     </Button>
                 </Dropdown>
             </div>
@@ -76,13 +81,13 @@ State > {
 
     _dataSource() {
         return this.state.records.map((record) => {
-            return Object.assign({}, record, {key: record.id});
+            return Object.assign({}, record, { key: record.id });
         });
     }
 
     _columns() {
         const cols: any[] = this.props.model.cols.map((col) => {
-            return {key: col.key, title: col.title, dataIndex: col.key};
+            return { key: col.key, title: col.title, dataIndex: col.key };
         });
 
         return cols.concat({
@@ -90,14 +95,24 @@ State > {
             key: 'action',
             width: 100,
             render: (text: string, record: { id: string }) => {
-                const updateQueryString = queryString.stringify(
-                    Object.assign(queryString.parse(this.props.pageContext.querystring), {id: record.id})
+                const editQueryString = queryString.stringify(
+                    Object.assign(queryString.parse(this.props.pageContext.querystring), { id: record.id })
                 );
+
+                const onRemove = () => {
+                    Ajax.del(`/api/${this.props.model.removeHandler}/?${queryString.stringify({ id: record.id })}`)
+                        .then(() => {
+                            this._fetch();
+                        });
+                };
+
                 return (
                     <span>
-                        <Link text="Edit" path={`${this.props.model.updatePage}?${updateQueryString}`}/>
-                        <span className="ant-divider"/>
-                        <a href="#">Remove</a>
+                        <Link text="Edit" path={`${this.props.model.updatePage}?${editQueryString}`} />
+                        <span className="ant-divider" />
+                        <Popconfirm title="Are you sure?" onConfirm={onRemove} okText="Yes" cancelText="No">
+                            <a>Remove</a>
+                        </Popconfirm>
                     </span>
                 );
             }
@@ -126,7 +141,7 @@ State > {
     }
 
     componentDidUpdate(prevProps: Props, prevState: State) {
-        console.log('[TableBlock] componentDidUpdate');
+        console.log('[TableBlock] componentDidUpdate', this.state);
         if (this.props.pageContext.querystring != null
             && this.props.pageContext.querystring !== prevProps.pageContext.querystring) {
             this._fetch();
@@ -135,11 +150,11 @@ State > {
 
     _fetch() {
         console.log('[TableBlock] _fetch');
-        this.setState({loading: true});
+        this.setState({ loading: true });
         Ajax
             .get(Util.cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
             .then((response) => {
-                this.setState({records: response, loading: false});
+                this.setState({ records: response, loading: false });
             });
     }
 }

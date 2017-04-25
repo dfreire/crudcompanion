@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Form as AntdForm, Button } from 'antd';
+import { Form as AntdForm, Row, Col, Button, Popconfirm } from 'antd';
 import * as Util from '../../Util';
 import * as Ajax from '../../Ajax';
 import { navigateTo } from '../../Link';
@@ -71,8 +71,7 @@ export class Form extends React.Component<Props, State> {
 
     _renderButtons() {
         const onSave = () => {
-            console.log(JSON.stringify(this.state.record));
-            Ajax.post(this.props.model.saveHandler, this.state.record)
+            Ajax.post(`/api/${this.props.model.saveHandler}`, this.state.record)
                 .then(() => {
                     navigateTo(this.props.model.cancelPage);
                 });
@@ -82,22 +81,27 @@ export class Form extends React.Component<Props, State> {
             navigateTo(this.props.model.cancelPage);
         };
 
+        const onRemove = () => {
+            Ajax.del(`/api/${this.props.model.removeHandler}/?${this.props.pageContext.querystring}`)
+                .then(() => {
+                    navigateTo(this.props.model.cancelPage);
+                });
+        };
+
         return (
-            <div>
-                <Button
-                    type="primary"
-                    style={{ width: 100 }}
-                    onClick={onSave}                    
-                >
-                    Save
-                </Button>
-                <Button
-                    style={{ width: 100, marginLeft: 10 }}
-                    onClick={onCancel}
-                >
-                    Cancel
-                </Button>
-            </div>
+            <Row>
+                <Col span={12}>
+                    <Button type="primary" style={{ width: 100 }} onClick={onSave}>Save</Button>
+                    <Button style={{ width: 100, marginLeft: 10 }} onClick={onCancel}>Cancel</Button>
+                </Col>
+                <Col span={12} style={{textAlign: 'right'}}>
+                    {this.props.model.removeHandler != null && (
+                        <Popconfirm title="Are you sure?" onConfirm={onRemove} okText="Yes" cancelText="No">
+                            <Button type="danger" style={{ width: 100 }}>Remove</Button>
+                        </Popconfirm>
+                    )}
+                </Col>
+            </Row>
         );
     }
 
@@ -109,7 +113,7 @@ export class Form extends React.Component<Props, State> {
     }
 
     componentDidUpdate(prevProps: Props, prevState: State) {
-        console.log('[FormBlock] componentDidUpdate');
+        console.log('[FormBlock] componentDidUpdate', this.state);
         if (this.props.pageContext.querystring != null
             && this.props.pageContext.querystring !== prevProps.pageContext.querystring) {
             this._fetch();
@@ -118,10 +122,14 @@ export class Form extends React.Component<Props, State> {
 
     _fetch() {
         console.log('[FormBlock] _fetch');
-        this.setState({ loading: true });
-        Ajax.get(Util.cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
-            .then((response) => {
-                this.setState({ record: response, loading: false });
-            });
+        if (this.props.model.getHandler == null) {
+            this.setState({ record: {} });
+        } else {
+            this.setState({ loading: true });
+            Ajax.get(Util.cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
+                .then((response) => {
+                    this.setState({ record: response, loading: false });
+                });
+        }
     }
 }

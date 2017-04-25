@@ -29,3 +29,18 @@ export function post(url: string, data?: object) {
             console.error(error);
         });
 }
+
+export function del(url: string) {
+    return axios.delete(Util.cleanUrl(url))
+        .then((response) => {
+            if (response.status >= 200 &&  response.status < 400) {
+                // return response.data;
+                console.log(response.data);
+            } else {
+                console.warn(response);
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+}
