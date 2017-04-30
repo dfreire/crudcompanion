@@ -81,7 +81,7 @@ export class Table extends React.Component<Props,
                 </Button>
                 <Dropdown overlay={menu} placement="bottomLeft">
                     <Button style={{ marginLeft: 10 }}>
-                        With selected... <Icon type="down" />
+                        With {this.state.selectedIds.length} selected... <Icon type="down" />
                     </Button>
                 </Dropdown>
             </div>

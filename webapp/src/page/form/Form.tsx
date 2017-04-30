@@ -53,7 +53,7 @@ export class Form extends React.Component<Props, State> {
         const commonProps = Object.assign({}, this.props, {
             value,
             onChange: (fieldKey: string, evt: any) => {
-                let record = Object.assign({}, this.state.record);
+                const record = Object.assign({}, this.state.record);
                 record[fieldKey] = evt.target.value;
                 this.setState({ record });
             }
@@ -71,7 +71,8 @@ export class Form extends React.Component<Props, State> {
 
     _renderButtons() {
         const onSave = () => {
-            Ajax.post(`/api/${this.props.model.saveHandler}`, this.state.record)
+            const record = Object.assign({}, this.state.record, { language_id: this.props.language });
+            Ajax.post(`/api/${this.props.model.saveHandler}`, record)
                 .then(() => {
                     navigateTo(this.props.model.cancelPage);
                 });

@@ -37,7 +37,7 @@ class App extends React.Component<Props, State> {
                 const { pageContext } = this.state;
                 if (pageContext != null) {
                     const query = queryString.parse(pageContext.querystring);
-                    query.lang = language;
+                    query.language_id = language;
                     page(Util.cleanUrl(`${pageContext.pathname}/?${queryString.stringify(query)}`));
                 }
             }
@@ -70,15 +70,15 @@ class App extends React.Component<Props, State> {
                         .then((model: Types.PageModel) => {
                             const query = queryString.parse(pageContext.querystring);
 
-                            if (query.lang == null) {
-                                query.lang = this.state.language;
+                            if (query.language_id == null) {
+                                query.language_id = this.state.language;
                                 page(Util.cleanUrl(`${pageContext.pathname}/?${queryString.stringify(query)}`));
 
                             } else if (model.redirect != null) {
                                 page(Util.cleanUrl(`${model.redirect}/?${pageContext.querystring}`));
 
                             } else {
-                                this.setState({ pageContext, language: query.lang, model });
+                                this.setState({ pageContext, language: query.language_id, model });
                             }
                         });
                 });
