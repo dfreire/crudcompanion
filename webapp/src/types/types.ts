@@ -39,7 +39,7 @@ export interface FormModel extends BlockModel {
 }
 
 export interface FieldModel {
-    type: 'text' | 'textarea';
+    type: 'text' | 'textarea' | 'select-one';
     key: string;
     title: string;
 }
@@ -53,6 +53,14 @@ export interface TextAreaFieldModel extends FieldModel {
     placeholder?: string;
     isTranslatable?: boolean;
     rows?: number;
+}
+
+export interface SelectOneFieldModel extends FieldModel {
+    placeholder?: string;
+    getHandler: string;
+    searchHandler: string;
+    captionKey: string;
+    valueKey: string;
 }
 
 export interface DateFieldModel extends FieldModel {

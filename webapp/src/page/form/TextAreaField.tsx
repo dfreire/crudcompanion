@@ -4,6 +4,7 @@ import * as Types from '../../types/types';
 
 interface Props {
     pageContext: PageJS.Context;
+    language: Types.Language;
     model: Types.TextAreaFieldModel;
     value: string;
     onChange: {(fieldKey: string, evt: any): void};
@@ -19,7 +20,7 @@ export class TextAreaField extends React.Component<Props, State> {
     }
 
     render() {
-        const withRows = {
+        const withRows: any = {
             rows: this.props.model.rows || 4
         };
 
@@ -30,7 +31,7 @@ export class TextAreaField extends React.Component<Props, State> {
                     {...withRows}
                     placeholder={this.props.model.placeholder}
                     value={this.props.value}
-                    onChange={evt => this.props.onChange(this.props.model.key, evt)}
+                    onChange={(evt: any) => this.props.onChange(this.props.model.key, evt.target.value)}
                 />
             </Form.Item>
         );

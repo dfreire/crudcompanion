@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as queryString from 'query-string';
 import { Form as AntdForm, Row, Col, Button, Popconfirm } from 'antd';
 import * as Util from '../../Util';
 import * as Ajax from '../../Ajax';
@@ -6,6 +7,7 @@ import { navigateTo } from '../../Link';
 import * as Types from '../../types/types';
 import { TextField } from './TextField';
 import { TextAreaField } from './TextAreaField';
+import { SelectOneField } from './SelectOneField';
 
 interface Props {
     pageContext: PageJS.Context;
@@ -14,7 +16,7 @@ interface Props {
 }
 
 interface State {
-    record: object;
+    record: any;
     loading: boolean;
 }
 
@@ -52,9 +54,9 @@ export class Form extends React.Component<Props, State> {
 
         const commonProps = Object.assign({}, this.props, {
             value,
-            onChange: (fieldKey: string, evt: any) => {
+            onChange: (fieldKey: string, fieldValue: any) => {
                 const record = Object.assign({}, this.state.record);
-                record[fieldKey] = evt.target.value;
+                record[fieldKey] = fieldValue || null;
                 this.setState({ record });
             }
         });
@@ -64,6 +66,8 @@ export class Form extends React.Component<Props, State> {
                 return <TextField {...commonProps} model={fieldModel as Types.TextFieldModel} />;
             case 'textarea':
                 return <TextAreaField {...commonProps} model={fieldModel as Types.TextAreaFieldModel} />;
+            case 'select-one':
+                return <SelectOneField {...commonProps} model={fieldModel as Types.SelectOneFieldModel} />;
             default:
                 return <div />;
         }
@@ -83,7 +87,8 @@ export class Form extends React.Component<Props, State> {
         };
 
         const onRemove = () => {
-            Ajax.del(`/api/${this.props.model.removeHandler}/?${this.props.pageContext.querystring}`)
+            const qs = queryString.stringify({ id: this.state.record.id });
+            Ajax.del(`/api/${this.props.model.removeHandler}/?${qs}`)
                 .then(() => {
                     navigateTo(this.props.model.cancelPage);
                 });

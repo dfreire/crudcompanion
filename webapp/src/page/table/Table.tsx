@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as queryString from 'query-string';
-import { Table as AntdTable, Button, Menu, Dropdown, Icon, Popconfirm } from 'antd';
+import { Table as AntdTable, Button, Menu, Dropdown, Icon, Modal, Popconfirm } from 'antd';
 import * as Util from '../../Util';
 import * as Ajax from '../../Ajax';
 import { Link, navigateTo } from '../../Link';
@@ -15,7 +15,7 @@ interface Props {
 interface State {
     records: any[];
     selectedIds: string[];
-    loading: boolean;
+    isLoading: boolean;
 }
 
 export class Table extends React.Component<Props,
@@ -25,7 +25,7 @@ export class Table extends React.Component<Props,
         this.state = {
             records: [],
             selectedIds: [],
-            loading: false
+            isLoading: false
         };
     }
 
@@ -40,7 +40,7 @@ export class Table extends React.Component<Props,
                     rowSelection={this._rowSelection()}
                     size="middle"
                     bordered={true}
-                    loading={this.state.loading}
+                    loading={this.state.isLoading}
                     locale={{
                         filterConfirm: 'Ok',
                         filterReset: 'Reset',
@@ -57,11 +57,15 @@ export class Table extends React.Component<Props,
     }
 
     _renderButtons() {
-        const onBulkRemove = () => {
+        const onConfirmBulkRemove = () => {
             Ajax.del(`/api/${this.props.model.removeHandler}/?${queryString.stringify({ id: this.state.selectedIds })}`)
                 .then(() => {
                     this._fetch();
                 });
+        };
+
+        const onBulkRemove = () => {
+            Modal.confirm({ title: 'Are you sure?', onOk: onConfirmBulkRemove, okText: 'Yes', cancelText: 'No' });
         };
 
         const menu = (
@@ -160,11 +164,12 @@ export class Table extends React.Component<Props,
 
     _fetch() {
         console.log('[TableBlock] _fetch');
-        this.setState({ loading: true });
-        Ajax
-            .get(Util.cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
+        this.setState({ isLoading: true });
+        const { getHandler } = this.props.model;
+        const qs = queryString.stringify({ language_id: this.props.language });
+        Ajax.get(Util.cleanUrl(`/api/${getHandler}?${qs}`))
             .then((response) => {
-                this.setState({ records: response, loading: false });
+                this.setState({ records: response, isLoading: false });
             });
     }
 }
