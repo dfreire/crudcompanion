@@ -148,14 +148,12 @@ export class Table extends React.Component<Props,
     }
 
     componentDidMount() {
-        console.log('[TableBlock] componentDidMount');
         if (this.props.pageContext.querystring != null) {
             this._fetch();
         }
     }
 
     componentDidUpdate(prevProps: Props, prevState: State) {
-        console.log('[TableBlock] componentDidUpdate', this.state);
         if (this.props.pageContext.querystring != null
             && this.props.pageContext.querystring !== prevProps.pageContext.querystring) {
             this._fetch();
@@ -169,6 +167,7 @@ export class Table extends React.Component<Props,
         const qs = queryString.stringify({ language_id: this.props.language });
         Ajax.get(Util.cleanUrl(`/api/${getHandler}?${qs}`))
             .then((response) => {
+                console.log('[TableBlock]', response);
                 this.setState({ records: response, isLoading: false });
             });
     }

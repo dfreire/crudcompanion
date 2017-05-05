@@ -40,13 +40,13 @@ export class SelectOneField extends React.Component<Props, State> {
             <Form.Item label={this.props.model.title}>
                 <Select
                     mode="combobox"
-                    labelInValue={false}
                     value={this.state.caption}
                     placeholder={this.props.model.placeholder}
-                    notFoundContent={this.state.isLoading ? <Spin size="small" /> : null}
-                    filterOption={false}
                     onChange={this._onChange}
                     onSearch={this._onSearch}
+                    notFoundContent={this.state.isLoading ? <Spin size="small" /> : null}
+                    labelInValue={false}
+                    filterOption={false}
                 >
                     {this.state.dataSource.map((item: any) => {
                         const caption = item[this.props.model.captionKey];
@@ -59,29 +59,25 @@ export class SelectOneField extends React.Component<Props, State> {
 
     componentWillReceiveProps(nextProps: Props) {
         const shouldFetch =
-            nextProps.value != null &&
-            (nextProps.value !== this.props.value || nextProps.language !== this.props.language);
+            nextProps.language !== this.props.language ||
+            (nextProps.value != null && this.state.caption === '');
 
         if (shouldFetch) {
             const { getHandler } = this.props.model;
             const qs = queryString.stringify({ id: nextProps.value, language_id: nextProps.language });
             Ajax.get(Util.cleanUrl(`/api/${getHandler}?${qs}`))
                 .then((response) => {
-                    console.log('respponse', response);
                     this.setState({ caption: response[this.props.model.captionKey] });
                 });
         }
     }
 
     _onChange(caption: string) {
-        console.log('_onChange', caption);
-        this._fireSelected(caption, this.state.dataSource);
         this.setState({ caption });
+        this._fireSelected(caption, this.state.dataSource);
     }
 
     _onSearch(searchValue: any) {
-        console.log('_onSearch', searchValue);
-
         this.lastFetchId += 1;
         const fetchId = this.lastFetchId;
 
@@ -112,7 +108,6 @@ export class SelectOneField extends React.Component<Props, State> {
         const _datasource = dataSource || [];
         const { captionKey, valueKey } = this.props.model;
         const selected = _datasource.find(item => item[captionKey] === _caption.trim()) || {};
-        console.log('_fireSelected', selected);
         this.props.onChange(this.props.model.key, selected[valueKey]);
     }
 }

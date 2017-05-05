@@ -112,14 +112,12 @@ export class Form extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        console.log('[FormBlock] componentDidMount');
         if (this.props.pageContext.querystring != null) {
             this._fetch();
         }
     }
 
     componentDidUpdate(prevProps: Props, prevState: State) {
-        console.log('[FormBlock] componentDidUpdate', this.state);
         if (this.props.pageContext.querystring != null
             && this.props.pageContext.querystring !== prevProps.pageContext.querystring) {
             this._fetch();
@@ -134,6 +132,7 @@ export class Form extends React.Component<Props, State> {
             this.setState({ loading: true });
             Ajax.get(Util.cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
                 .then((response) => {
+                    console.log('[FormBlock]', response);
                     this.setState({ record: response, loading: false });
                 });
         }
