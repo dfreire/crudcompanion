@@ -19,7 +19,7 @@ export function post(url: string, data?: object) {
     return axios.post(Util.cleanUrl(url), data)
         .then((response) => {
             if (response.status >= 200 &&  response.status < 400) {
-                // ok
+                return response.data;
             } else {
                 console.warn(response);
             }
@@ -33,8 +33,7 @@ export function del(url: string) {
     return axios.delete(Util.cleanUrl(url))
         .then((response) => {
             if (response.status >= 200 &&  response.status < 400) {
-                // return response.data;
-                console.log(response.data);
+                return response.data;
             } else {
                 console.warn(response);
             }

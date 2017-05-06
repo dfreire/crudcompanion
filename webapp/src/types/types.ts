@@ -23,7 +23,8 @@ export interface TableModel extends BlockModel {
 
     getHandler: string;
     removeHandler: string;
-    createPage: string;
+    uploadHandler?: string;
+    createPage?: string;
     updatePage: string;
     bulkUpdate?: boolean;
 }

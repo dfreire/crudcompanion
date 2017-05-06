@@ -1,6 +1,7 @@
+import * as _ from 'underscore';
 import * as React from 'react';
 import * as queryString from 'query-string';
-import { Table as AntdTable, Button, Menu, Dropdown, Icon, Modal, Popconfirm } from 'antd';
+import { Table as AntdTable, Button, Menu, Dropdown, Icon, Modal, Popconfirm, Upload, message } from 'antd';
 import * as Util from '../../Util';
 import * as Ajax from '../../Ajax';
 import { Link, navigateTo } from '../../Link';
@@ -15,18 +16,22 @@ interface Props {
 interface State {
     records: any[];
     selectedIds: string[];
+    uploadingMap: { [uid: string]: { percent: number; size: number } };
     isLoading: boolean;
 }
 
-export class Table extends React.Component<Props,
-    State> {
+export class Table extends React.Component<Props, State> {
+    private _debouncedFetch: {(): void};
+
     constructor(props: Props) {
         super(props);
         this.state = {
             records: [],
             selectedIds: [],
-            isLoading: false
+            isLoading: false,
+            uploadingMap: {},
         };
+        this._debouncedFetch = _.debounce(this._fetch.bind(this), 500);
     }
 
     render() {
@@ -57,9 +62,94 @@ export class Table extends React.Component<Props,
     }
 
     _renderButtons() {
+        return (
+            <div style={{ textAlign: 'left' }}>
+                {this._renderCreateButton()}
+                {this._renderUploadButton()}
+                {this._renderBulkActionsButton()}
+            </div>
+        );
+    }
+
+    _renderCreateButton() {
+        const createPage = this.props.model.createPage;
+
+        if (createPage == null) {
+            return <span />;
+        } else {
+            return (
+                <Button
+                    type="primary"
+                    style={{ width: 100, marginTop: 10, marginRight: 10, marginBottom: 10 }}
+                    onClick={() => navigateTo(createPage)}
+                >
+                    Create
+                </Button>
+            );
+        }
+    }
+
+    _renderUploadButton() {
+        const uploadHandler = this.props.model.uploadHandler;
+
+        const props = {
+            name: 'file',
+            action: '/api/file/upload/',
+            multiple: true,
+            showUploadList: false,
+            headers: {},
+            onChange: (info: any) => {
+                const { uploadingMap } = this.state;
+                const { uid, percent, size } = info.file;
+
+                if (info.file.status === 'uploading') {
+                    uploadingMap[uid] = { percent, size };
+                    this.setState({ uploadingMap });
+                } else if (info.file.status === 'done') {
+                    // message.success(`Uploaded: ${info.file.name}`);
+                    delete uploadingMap[uid];
+                    this.setState({ uploadingMap });
+                    this._debouncedFetch();
+                } else if (info.file.status === 'error') {
+                    message.error(`Problem uploading: ${info.file.name}`);
+                    delete uploadingMap[uid];
+                    this.setState({ uploadingMap });
+                    this._debouncedFetch();
+                }
+            },
+        };
+
+        if (uploadHandler == null) {
+            return <span />;
+        } else {
+            const uploaded = _(this.state.uploadingMap).values()
+                .reduce((acc: number, item: any) => (acc + (item.percent / 100 * item.size)), 0);
+            const total = _(this.state.uploadingMap).values()
+                .reduce((acc: number, item: any) => (acc + item.size), 0);
+
+            const uploadingSpan = () => {
+                return <span>({Math.round(uploaded * 100 / total)}%) <Icon type="loading" /></span>;
+            };
+
+            return (
+                <Upload {...props}>
+                    <Button
+                        type="primary"
+                        style={{ minWidth: 100, marginTop: 10, marginRight: 10, marginBottom: 10 }}
+                        disabled={total > 0}
+                    >
+                        Upload {total > 0 ? uploadingSpan() : <span />}
+                    </Button>
+                </Upload>
+            );
+        }
+    }
+
+    _renderBulkActionsButton() {
         const onConfirmBulkRemove = () => {
             Ajax.del(`/api/${this.props.model.removeHandler}/?${queryString.stringify({ id: this.state.selectedIds })}`)
                 .then(() => {
+                    this.setState({ selectedIds: [] });
                     this._fetch();
                 });
         };
@@ -75,20 +165,11 @@ export class Table extends React.Component<Props,
         );
 
         return (
-            <div style={{ textAlign: 'left' }}>
-                <Button
-                    type="primary"
-                    style={{ width: 100, marginTop: 10, marginBottom: 10 }}
-                    onClick={() => navigateTo(this.props.model.createPage)}
-                >
-                    Create
+            <Dropdown overlay={menu} placement="bottomLeft">
+                <Button style={{ marginBottom: 10 }}>
+                    With {this.state.selectedIds.length} selected... <Icon type="down" />
                 </Button>
-                <Dropdown overlay={menu} placement="bottomLeft">
-                    <Button style={{ marginLeft: 10 }}>
-                        With {this.state.selectedIds.length} selected... <Icon type="down" />
-                    </Button>
-                </Dropdown>
-            </div>
+            </Dropdown>
         );
     }
 
@@ -115,6 +196,8 @@ export class Table extends React.Component<Props,
                 const onRemove = () => {
                     Ajax.del(`/api/${this.props.model.removeHandler}/?${queryString.stringify({ id: record.id })}`)
                         .then(() => {
+                            const selectedIds = _.without(this.state.selectedIds, record.id);
+                            this.setState({ selectedIds });
                             this._fetch();
                         });
                 };
@@ -134,15 +217,10 @@ export class Table extends React.Component<Props,
 
     _rowSelection() {
         return {
+            // type: 'checkbox' or 'radio'
+            selectedRowKeys: this.state.selectedIds,
             onChange: (selectedRowKeys: any, selectedRows: any) => {
-                console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
                 this.setState({ selectedIds: selectedRowKeys });
-            },
-            onSelect: (record: any, selected: any, selectedRows: any) => {
-                console.log('onSelect', record, selected, selectedRows);
-            },
-            onSelectAll: (selected: any, selectedRows: any, changeRows: any) => {
-                console.log('onSelectAll', selected, selectedRows, changeRows);
             }
         };
     }
