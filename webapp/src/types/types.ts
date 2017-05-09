@@ -23,17 +23,19 @@ export interface TableModel extends BlockModel {
 }
 
 export interface ColumnModel {
-    type: 'text' | 'number';
+    type: 'text' | 'number' | 'image';
     key: string;
     title: string;
 }
 
 export interface TextColumnModel extends ColumnModel {
-    
 }
 
 export interface NumberColumnModel extends ColumnModel {
     format: string;
+}
+
+export interface ImageColumnModel extends ColumnModel {
 }
 
 export interface FormModel extends BlockModel {

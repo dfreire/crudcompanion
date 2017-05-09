@@ -24,3 +24,7 @@ h2 {
 .app-td-number {
   text-align: right;
 }
+
+.app-td-image {
+  text-align: center;
+}

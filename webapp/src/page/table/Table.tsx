@@ -185,26 +185,12 @@ export class Table extends React.Component<Props, State> {
             switch (col.type) {
                 case 'text': return this._textColumn(col as Types.TextColumnModel);
                 case 'number': return this._numberColumn(col as Types.NumberColumnModel);
+                case 'image': return this._imageColumn(col as Types.ImageColumnModel);
                 default: return { key: col.key, title: col.title, dataIndex: col.key };
             }
         });
 
-        return cols
-            .map((col) => {
-                if (!_.isFunction(col.sorter)) {
-                    col.sorter = (a: string, b: string) => {
-                        if (a[col.key] < b[col.key]) {
-                            return -1;
-                        } else if (a[col.key] > b[col.key]) {
-                            return 1;
-                        } else {
-                            return 0;
-                        }
-                    };
-                }
-                return col;
-            })
-            .concat(this._actionsColumn());
+        return cols.concat(this._actionsColumn());
     }
 
     _textColumn(col: Types.TextColumnModel) {
@@ -212,6 +198,15 @@ export class Table extends React.Component<Props, State> {
             key: col.key,
             title: col.title,
             dataIndex: col.key,
+            sorter: (a: object, b: object) => {
+                if (a[col.key] < b[col.key]) {
+                    return -1;
+                } else if (a[col.key] > b[col.key]) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            },
         };
     }
 
@@ -222,10 +217,33 @@ export class Table extends React.Component<Props, State> {
             dataIndex: col.key,
             className: 'app-td-number',
             render: (text: string, record: { id: string }, index: number) => {
-                return (
-                    <span>{numeral(text).format(col.format)}</span>
-                );
-            }
+                return <span>{numeral(text).format(col.format)}</span>;
+            },
+            sorter: (a: object, b: object) => {
+                if (a[col.key] < b[col.key]) {
+                    return -1;
+                } else if (a[col.key] > b[col.key]) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            },
+        };
+    }
+
+    _imageColumn(col: Types.ImageColumnModel) {
+        return {
+            key: col.key,
+            title: col.title,
+            dataIndex: col.key,
+            className: 'app-td-image',
+            render: (text: string, record: { id: string }, index: number) => {
+                if (text != null) {
+                    return <img src={text} />;
+                } else {
+                    return <span />;
+                }
+            },
         };
     }
 
