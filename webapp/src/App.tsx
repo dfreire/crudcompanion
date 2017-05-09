@@ -62,11 +62,10 @@ class App extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        console.log('[App] componentDidMount');
-        Ajax.get('/api/contentmodel/website.json')
+        Ajax.get('/api/viewmodel/website.json')
             .then((response) => {
                 page('*', (pageContext: PageJS.Context) => {
-                    Ajax.get(Util.cleanUrl(`/api/contentmodel/${pageContext.pathname}/index.json`))
+                    Ajax.get(Util.cleanUrl(`/api/viewmodel/${pageContext.pathname}/index.json`))
                         .then((model: Types.PageModel) => {
                             const query = queryString.parse(pageContext.querystring);
 

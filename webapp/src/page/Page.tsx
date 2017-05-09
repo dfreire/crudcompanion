@@ -29,6 +29,10 @@ export class Page extends React.Component<Props, State> {
             <div style={{ marginTop: 40, marginBottom: 40 }}>
                 <Row>
                     <Col span={20}>
+                        <a href="/pages">pages</a> | <a href="/files">files</a>
+                        <br /><br />
+                    </Col>
+                    <Col span={20}>
                         {this._renderBreadcrumb()}
                     </Col>
                     <Col span={4} style={{ textAlign: 'right' }}>

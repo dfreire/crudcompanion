@@ -20,3 +20,7 @@ h2 {
 .ant-table-thead > tr > th {
   font-weight: 900;
 }
+
+.app-td-number {
+  text-align: right;
+}

@@ -75,8 +75,8 @@ export class Form extends React.Component<Props, State> {
 
     _renderButtons() {
         const onSave = () => {
-            const record = Object.assign({}, this.state.record, { language_id: this.props.language });
-            Ajax.post(`/api/${this.props.model.saveHandler}`, record)
+            const qs = queryString.stringify({ language_id: this.props.language });
+            Ajax.post(`/api/${this.props.model.saveHandler}/?${qs}`, this.state.record)
                 .then(() => {
                     navigateTo(this.props.model.cancelPage);
                 });
@@ -125,14 +125,12 @@ export class Form extends React.Component<Props, State> {
     }
 
     _fetch() {
-        console.log('[FormBlock] _fetch');
         if (this.props.model.getHandler == null) {
             this.setState({ record: {} });
         } else {
             this.setState({ loading: true });
             Ajax.get(Util.cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
                 .then((response) => {
-                    console.log('[FormBlock]', response);
                     this.setState({ record: response, loading: false });
                 });
         }

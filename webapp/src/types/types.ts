@@ -13,20 +13,27 @@ export interface BlockModel {
 export interface TableModel extends BlockModel {
     title?: string;
     span: number;
-
-    cols: {
-        type: 'text' | 'number'
-        key: string;
-        title: string;
-        isTranslatable?: boolean;
-    }[];
-
+    cols: ColumnModel[];
     getHandler: string;
     removeHandler: string;
     uploadHandler?: string;
     createPage?: string;
     updatePage: string;
     bulkUpdate?: boolean;
+}
+
+export interface ColumnModel {
+    type: 'text' | 'number';
+    key: string;
+    title: string;
+}
+
+export interface TextColumnModel extends ColumnModel {
+    
+}
+
+export interface NumberColumnModel extends ColumnModel {
+    format: string;
 }
 
 export interface FormModel extends BlockModel {

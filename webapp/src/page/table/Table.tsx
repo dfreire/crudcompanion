@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 import * as React from 'react';
 import * as queryString from 'query-string';
+import * as numeral from 'numeral';
 import { Table as AntdTable, Button, Menu, Dropdown, Icon, Modal, Popconfirm, Upload, message } from 'antd';
 import * as Util from '../../Util';
 import * as Ajax from '../../Ajax';
@@ -21,7 +22,7 @@ interface State {
 }
 
 export class Table extends React.Component<Props, State> {
-    private _debouncedFetch: {(): void};
+    private _debouncedFetch: { (): void };
 
     constructor(props: Props) {
         super(props);
@@ -181,14 +182,59 @@ export class Table extends React.Component<Props, State> {
 
     _columns() {
         const cols: any[] = this.props.model.cols.map((col) => {
-            return { key: col.key, title: col.title, dataIndex: col.key };
+            switch (col.type) {
+                case 'text': return this._textColumn(col as Types.TextColumnModel);
+                case 'number': return this._numberColumn(col as Types.NumberColumnModel);
+                default: return { key: col.key, title: col.title, dataIndex: col.key };
+            }
         });
 
-        return cols.concat({
+        return cols
+            .map((col) => {
+                if (!_.isFunction(col.sorter)) {
+                    col.sorter = (a: string, b: string) => {
+                        if (a[col.key] < b[col.key]) {
+                            return -1;
+                        } else if (a[col.key] > b[col.key]) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    };
+                }
+                return col;
+            })
+            .concat(this._actionsColumn());
+    }
+
+    _textColumn(col: Types.TextColumnModel) {
+        return {
+            key: col.key,
+            title: col.title,
+            dataIndex: col.key,
+        };
+    }
+
+    _numberColumn(col: Types.NumberColumnModel) {
+        return {
+            key: col.key,
+            title: col.title,
+            dataIndex: col.key,
+            className: 'app-td-number',
+            render: (text: string, record: { id: string }, index: number) => {
+                return (
+                    <span>{numeral(text).format(col.format)}</span>
+                );
+            }
+        };
+    }
+
+    _actionsColumn() {
+        return {
             title: 'Action',
             key: 'action',
             width: 100,
-            render: (text: string, record: { id: string }) => {
+            render: (text: string, record: { id: string }, index: number) => {
                 const editQueryString = queryString.stringify(
                     Object.assign(queryString.parse(this.props.pageContext.querystring), { id: record.id })
                 );
@@ -212,7 +258,7 @@ export class Table extends React.Component<Props, State> {
                     </span>
                 );
             }
-        });
+        };
     }
 
     _rowSelection() {
@@ -232,20 +278,19 @@ export class Table extends React.Component<Props, State> {
     }
 
     componentDidUpdate(prevProps: Props, prevState: State) {
-        if (this.props.pageContext.querystring != null
-            && this.props.pageContext.querystring !== prevProps.pageContext.querystring) {
-            this._fetch();
+        if (this.props.pageContext.querystring != null) {
+            if (this.props.pageContext.path !== prevProps.pageContext.path) {
+                this._fetch();
+            }
         }
     }
 
     _fetch() {
-        console.log('[TableBlock] _fetch');
         this.setState({ isLoading: true });
         const { getHandler } = this.props.model;
         const qs = queryString.stringify({ language_id: this.props.language });
         Ajax.get(Util.cleanUrl(`/api/${getHandler}?${qs}`))
             .then((response) => {
-                console.log('[TableBlock]', response);
                 this.setState({ records: response, isLoading: false });
             });
     }
