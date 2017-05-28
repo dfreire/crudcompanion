@@ -112,7 +112,7 @@ export class Page extends React.Component<Props, State> {
 
         switch (blockModel.type) {
             case 'table':
-                return <Table {...commonProps} model={blockModel as TableModel} />;
+                return <Table {...this.props} tableModel={blockModel as TableModel} />;
             case 'form':
                 return <Form {...commonProps} model={blockModel as FormModel} />;
             default:

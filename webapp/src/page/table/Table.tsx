@@ -3,46 +3,39 @@ import * as React from 'react';
 import * as queryString from 'query-string';
 import * as numeral from 'numeral';
 import { Table as AntdTable, Button, Menu, Dropdown, Icon, Modal, Popconfirm, Upload, message, Popover } from 'antd';
-import * as Util from '../../Util';
 import * as Ajax from '../../Ajax';
 import { Link, navigateTo } from '../../Link';
-import { Language } from '../../types/Language';
+import { Props } from '../../types/Props';
 import { TableModel } from '../../types/TableModel';
 import { TextColumnModel } from '../../types/TextColumnModel';
 import { NumberColumnModel } from '../../types/NumberColumnModel';
 import { ImageColumnModel } from '../../types/ImageColumnModel';
 
-interface Props {
-    pageContext: PageJS.Context;
-    language: Language;
-    model: TableModel;
+interface TableProps extends Props {
+    tableModel: TableModel;
 }
 
 interface State {
-    records: any[];
     selectedIds: string[];
     uploadingMap: { [uid: string]: { percent: number; size: number } };
-    isLoading: boolean;
 }
 
-export class Table extends React.Component<Props, State> {
+export class Table extends React.Component<TableProps, State> {
     private _debouncedFetch: { (): void };
 
-    constructor(props: Props) {
+    constructor(props: TableProps) {
         super(props);
         this.state = {
-            records: [],
             selectedIds: [],
-            isLoading: false,
             uploadingMap: {},
         };
-        this._debouncedFetch = _.debounce(this._fetch.bind(this), 500);
+        //this._debouncedFetch = _.debounce(this._fetch.bind(this), 500);
     }
 
     render() {
         return (
             <div>
-                <h2>{this.props.model.title}</h2>
+                <h2>{this.props.tableModel.title}</h2>
                 {this._renderButtons()}
                 <AntdTable
                     columns={this._columns()}
@@ -50,7 +43,7 @@ export class Table extends React.Component<Props, State> {
                     rowSelection={this._rowSelection()}
                     size="middle"
                     bordered={true}
-                    loading={this.state.isLoading}
+                    loading={this.props.tableModel.isLoading}
                     locale={{
                         filterConfirm: 'Ok',
                         filterReset: 'Reset',
@@ -77,7 +70,7 @@ export class Table extends React.Component<Props, State> {
     }
 
     _renderCreateButton() {
-        const createPage = this.props.model.createPage;
+        const createPage = this.props.tableModel.createPage;
 
         if (createPage == null) {
             return <span />;
@@ -95,7 +88,7 @@ export class Table extends React.Component<Props, State> {
     }
 
     _renderUploadButton() {
-        const uploadHandler = this.props.model.uploadHandler;
+        const uploadHandler = this.props.tableModel.uploadHandler;
 
         const props = {
             name: 'file',
@@ -152,10 +145,10 @@ export class Table extends React.Component<Props, State> {
 
     _renderBulkActionsButton() {
         const onConfirmBulkRemove = () => {
-            Ajax.del(`/api/${this.props.model.removeHandler}/?${queryString.stringify({ id: this.state.selectedIds })}`)
+            Ajax.del(`/api/${this.props.tableModel.removeHandler}/?${queryString.stringify({ id: this.state.selectedIds })}`)
                 .then(() => {
                     this.setState({ selectedIds: [] });
-                    this._fetch();
+                    // this._fetch();
                 });
         };
 
@@ -179,13 +172,13 @@ export class Table extends React.Component<Props, State> {
     }
 
     _dataSource() {
-        return this.state.records.map((record) => {
+        return (this.props.tableModel.records || []).map((record) => {
             return Object.assign({}, record, { key: record.id });
         });
     }
 
     _columns() {
-        const cols: any[] = this.props.model.cols.map((col) => {
+        const cols: any[] = this.props.tableModel.cols.map((col) => {
             switch (col.type) {
                 case 'text': return this._textColumn(col as TextColumnModel);
                 case 'number': return this._numberColumn(col as NumberColumnModel);
@@ -268,17 +261,17 @@ export class Table extends React.Component<Props, State> {
                 );
 
                 const onRemove = () => {
-                    Ajax.del(`/api/${this.props.model.removeHandler}/?${queryString.stringify({ id: record.id })}`)
+                    Ajax.del(`/api/${this.props.tableModel.removeHandler}/?${queryString.stringify({ id: record.id })}`)
                         .then(() => {
                             const selectedIds = _.without(this.state.selectedIds, record.id);
                             this.setState({ selectedIds });
-                            this._fetch();
+                            // this._fetch();
                         });
                 };
 
                 return (
                     <span>
-                        <Link text="Edit" path={`${this.props.model.updatePage}?${editQueryString}`} />
+                        <Link text="Edit" path={`${this.props.tableModel.updatePage}?${editQueryString}`} />
                         <span className="ant-divider" />
                         <Popconfirm title="Are you sure?" onConfirm={onRemove} okText="Yes" cancelText="No">
                             <a>Remove</a>
@@ -297,29 +290,5 @@ export class Table extends React.Component<Props, State> {
                 this.setState({ selectedIds: selectedRowKeys });
             }
         };
-    }
-
-    componentDidMount() {
-        if (this.props.pageContext.querystring != null) {
-            this._fetch();
-        }
-    }
-
-    componentDidUpdate(prevProps: Props, prevState: State) {
-        if (this.props.pageContext.querystring != null) {
-            if (this.props.pageContext.path !== prevProps.pageContext.path) {
-                this._fetch();
-            }
-        }
-    }
-
-    _fetch() {
-        this.setState({ isLoading: true });
-        const { getHandler } = this.props.model;
-        const qs = queryString.stringify({ language_id: this.props.language });
-        Ajax.get(Util.cleanUrl(`/api/${getHandler}?${qs}`))
-            .then((response) => {
-                this.setState({ records: response, isLoading: false });
-            });
     }
 }
