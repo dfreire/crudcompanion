@@ -4,12 +4,13 @@ import * as queryString from 'query-string';
 import { Form, Select, Spin } from 'antd';
 import * as Util from '../../Util';
 import * as Ajax from '../../Ajax';
-import * as Types from '../../types/types';
+import { Language } from '../../types/Language';
+import { SelectOneFieldModel } from '../../types/SelectOneFieldModel';
 
 interface Props {
     pageContext: PageJS.Context;
-    language: Types.Language;
-    model: Types.SelectOneFieldModel;
+    language: Language;
+    model: SelectOneFieldModel;
     value: string;
     onChange: { (fieldKey: string, evt: any): void };
 }

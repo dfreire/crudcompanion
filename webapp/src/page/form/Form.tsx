@@ -4,15 +4,20 @@ import { Form as AntdForm, Row, Col, Button, Popconfirm } from 'antd';
 import * as Util from '../../Util';
 import * as Ajax from '../../Ajax';
 import { navigateTo } from '../../Link';
-import * as Types from '../../types/types';
 import { TextField } from './TextField';
 import { TextAreaField } from './TextAreaField';
 import { SelectOneField } from './SelectOneField';
+import { Language } from '../../types/Language';
+import { FormModel } from '../../types/FormModel';
+import { FieldModel } from '../../types/FieldModel';
+import { TextFieldModel } from '../../types/TextFieldModel';
+import { TextAreaFieldModel } from '../../types/TextAreaFieldModel';
+import { SelectOneFieldModel } from '../../types/SelectOneFieldModel';
 
 interface Props {
     pageContext: PageJS.Context;
-    language: Types.Language;
-    model: Types.FormModel;
+    language: Language;
+    model: FormModel;
 }
 
 interface State {
@@ -49,7 +54,7 @@ export class Form extends React.Component<Props, State> {
         });
     }
 
-    _renderField(fieldModel: Types.FieldModel) {
+    _renderField(fieldModel: FieldModel) {
         const value = this.state.record[fieldModel.key];
 
         const commonProps = Object.assign({}, this.props, {
@@ -63,11 +68,11 @@ export class Form extends React.Component<Props, State> {
 
         switch (fieldModel.type) {
             case 'text':
-                return <TextField {...commonProps} model={fieldModel as Types.TextFieldModel} />;
+                return <TextField {...commonProps} model={fieldModel as TextFieldModel} />;
             case 'textarea':
-                return <TextAreaField {...commonProps} model={fieldModel as Types.TextAreaFieldModel} />;
+                return <TextAreaField {...commonProps} model={fieldModel as TextAreaFieldModel} />;
             case 'select-one':
-                return <SelectOneField {...commonProps} model={fieldModel as Types.SelectOneFieldModel} />;
+                return <SelectOneField {...commonProps} model={fieldModel as SelectOneFieldModel} />;
             default:
                 return <div />;
         }
@@ -100,7 +105,7 @@ export class Form extends React.Component<Props, State> {
                     <Button type="primary" style={{ width: 100 }} onClick={onSave}>Save</Button>
                     <Button style={{ width: 100, marginLeft: 10 }} onClick={onCancel}>Cancel</Button>
                 </Col>
-                <Col span={12} style={{textAlign: 'right'}}>
+                <Col span={12} style={{ textAlign: 'right' }}>
                     {this.props.model.removeHandler != null && (
                         <Popconfirm title="Are you sure?" onConfirm={onRemove} okText="Yes" cancelText="No">
                             <Button type="danger" style={{ width: 100 }}>Remove</Button>

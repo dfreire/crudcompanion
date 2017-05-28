@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { Form, Input } from 'antd';
-import * as Types from '../../types/types';
+import { Language } from '../../types/Language';
+import { TextAreaFieldModel } from '../../types/TextAreaFieldModel';
 
 interface Props {
     pageContext: PageJS.Context;
-    language: Types.Language;
-    model: Types.TextAreaFieldModel;
+    language: Language;
+    model: TextAreaFieldModel;
     value: string;
     onChange: {(fieldKey: string, evt: any): void};
 }

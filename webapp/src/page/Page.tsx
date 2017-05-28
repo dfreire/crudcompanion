@@ -1,24 +1,18 @@
 import * as React from 'react';
 import { Row, Col, Breadcrumb, Dropdown, Icon, Menu } from 'antd';
 import { Link } from '../Link';
-import * as Types from '../types/types';
+import { Props } from '../types/Props';
+import { Language } from '../types/Language';
+import { BlockModel } from '../types/BlockModel';
+import { TableModel } from '../types/TableModel';
+import { FormModel } from '../types/FormModel';
 import { Table } from './table/Table';
 import { Form } from './form/Form';
 
-interface Props {
-    pageContext: PageJS.Context;
-    languages: Types.Language[];
-    language: Types.Language;
-    model: Types.PageModel;
-
-    onSelectedLanguage: {(language: Types.Language): void};
-}
-
 interface State {
-}
+};
 
 export class Page extends React.Component<Props, State> {
-
     constructor(props: Props) {
         super(props);
         this.state = {};
@@ -75,7 +69,7 @@ export class Page extends React.Component<Props, State> {
 
     _renderLanguage() {
         const onClick = (params: { item: any, key: string, keyPath: any }) => {
-            this.props.onSelectedLanguage(params.key as Types.Language);
+            this.props.onSelectedLanguage(params.key as Language);
         };
 
         const uppercase = { textTransform: 'uppercase' };
@@ -98,7 +92,7 @@ export class Page extends React.Component<Props, State> {
     }
 
     _renderBlocks() {
-        const blocks = this.props.model.blocks || [];
+        const blocks = this.props.pageModel.blocks || [];
         return blocks.map((blockModel, i) => {
             return (
                 <Row key={i}>
@@ -110,7 +104,7 @@ export class Page extends React.Component<Props, State> {
         });
     }
 
-    _renderBlock(blockModel: Types.BlockModel) {
+    _renderBlock(blockModel: BlockModel) {
         const commonProps = {
             pageContext: this.props.pageContext,
             language: this.props.language,
@@ -118,9 +112,9 @@ export class Page extends React.Component<Props, State> {
 
         switch (blockModel.type) {
             case 'table':
-                return <Table {...commonProps} model={blockModel as Types.TableModel} />;
+                return <Table {...commonProps} model={blockModel as TableModel} />;
             case 'form':
-                return <Form {...commonProps} model={blockModel as Types.FormModel} />;
+                return <Form {...commonProps} model={blockModel as FormModel} />;
             default:
                 return <p>JSON.stringify(block)</p>;
         }

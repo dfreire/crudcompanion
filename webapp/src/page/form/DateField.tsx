@@ -1,9 +1,9 @@
 import * as React from 'react';
-import * as Types from '../../types/types';
+import { DateFieldModel } from '../../types/DateFieldModel';
 
 interface Props {
     pageContext: PageJS.Context;
-    model: Types.DateFieldModel;
+    model: DateFieldModel;
 }
 
 interface State {

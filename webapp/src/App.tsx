@@ -2,60 +2,39 @@ import * as React from 'react';
 import * as page from 'page';
 import * as queryString from 'query-string';
 import * as Util from './Util';
-import * as Types from './types/types';
 import * as Ajax from './Ajax';
+import { State } from './types/State';
+import { Props } from './types/Props';
+import { Language } from './types/Language';
+import { PageModel } from './types/PageModel';
 import { Page } from './page/Page';
 
-interface Props {
+class App extends React.Component<{}, State> {
+    private handlers: any;
 
-}
-
-interface State {
-    pageContext?: PageJS.Context;
-    languages?: Types.Language[];
-    language?: Types.Language;
-    model?: Types.PageModel;
-}
-
-class App extends React.Component<Props, State> {
-    constructor(props: Props) {
+    constructor(props: {}) {
         super(props);
-        this.state = {};
-    }
+        this.state = {
+        };
 
-    render() {
-        return (
-            <div>
-                {this._renderPage()}
-            </div>
-        );
-    }
-
-    _renderPage() {
-        const handlers = {
-            onSelectedLanguage: (language: Types.Language) => {
+        this.handlers = {
+            onSelectedLanguage: (language: Language) => {
                 const { pageContext } = this.state;
                 if (pageContext != null) {
-                    const query = queryString.parse(pageContext.querystring);
-                    query.language_id = language;
+                    const query = { ...queryString.parse(pageContext.querystring), language_id: language };
                     page(Util.cleanUrl(`${pageContext.pathname}/?${queryString.stringify(query)}`));
                 }
             }
         };
+    }
 
-        if (this.state.pageContext != null
-            && this.state.languages != null
-            && this.state.language != null
-            && this.state.model != null) {
-            return (
-                <Page
-                    pageContext={this.state.pageContext}
-                    languages={this.state.languages}
-                    language={this.state.language}
-                    model={this.state.model}
-                    {...handlers}
-                />
-            );
+    render() {
+        if (this.state.pageModel != null) {
+            const props: Props = {
+                ...this.state,
+                ...this.handlers
+            };
+            return <Page {...props} />;
         } else {
             return <div />;
         }
@@ -64,20 +43,21 @@ class App extends React.Component<Props, State> {
     componentDidMount() {
         Ajax.get('/api/viewmodel/website.json')
             .then((response) => {
+                // page(/^(?!\/api)/ as any, (pageContext: PageJS.Context) => {
                 page('*', (pageContext: PageJS.Context) => {
                     Ajax.get(Util.cleanUrl(`/api/viewmodel/${pageContext.pathname}/index.json`))
-                        .then((model: Types.PageModel) => {
+                        .then((pageModel: PageModel) => {
                             const query = queryString.parse(pageContext.querystring);
 
                             if (query.language_id == null) {
                                 query.language_id = this.state.language;
                                 page(Util.cleanUrl(`${pageContext.pathname}/?${queryString.stringify(query)}`));
 
-                            } else if (model.redirect != null) {
-                                page(Util.cleanUrl(`${model.redirect}/?${pageContext.querystring}`));
+                            } else if (pageModel.redirect != null) {
+                                page(Util.cleanUrl(`${pageModel.redirect}/?${pageContext.querystring}`));
 
                             } else {
-                                this.setState({ pageContext, language: query.language_id, model });
+                                this.setState({ pageContext, language: query.language_id, pageModel });
                             }
                         });
                 });

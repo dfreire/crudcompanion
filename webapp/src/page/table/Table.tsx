@@ -2,16 +2,20 @@ import * as _ from 'underscore';
 import * as React from 'react';
 import * as queryString from 'query-string';
 import * as numeral from 'numeral';
-import { Table as AntdTable, Button, Menu, Dropdown, Icon, Modal, Popconfirm, Upload, message } from 'antd';
+import { Table as AntdTable, Button, Menu, Dropdown, Icon, Modal, Popconfirm, Upload, message, Popover } from 'antd';
 import * as Util from '../../Util';
 import * as Ajax from '../../Ajax';
 import { Link, navigateTo } from '../../Link';
-import * as Types from '../../types/types';
+import { Language } from '../../types/Language';
+import { TableModel } from '../../types/TableModel';
+import { TextColumnModel } from '../../types/TextColumnModel';
+import { NumberColumnModel } from '../../types/NumberColumnModel';
+import { ImageColumnModel } from '../../types/ImageColumnModel';
 
 interface Props {
     pageContext: PageJS.Context;
-    language: Types.Language;
-    model: Types.TableModel;
+    language: Language;
+    model: TableModel;
 }
 
 interface State {
@@ -183,9 +187,9 @@ export class Table extends React.Component<Props, State> {
     _columns() {
         const cols: any[] = this.props.model.cols.map((col) => {
             switch (col.type) {
-                case 'text': return this._textColumn(col as Types.TextColumnModel);
-                case 'number': return this._numberColumn(col as Types.NumberColumnModel);
-                case 'image': return this._imageColumn(col as Types.ImageColumnModel);
+                case 'text': return this._textColumn(col as TextColumnModel);
+                case 'number': return this._numberColumn(col as NumberColumnModel);
+                case 'image': return this._imageColumn(col as ImageColumnModel);
                 default: return { key: col.key, title: col.title, dataIndex: col.key };
             }
         });
@@ -193,7 +197,7 @@ export class Table extends React.Component<Props, State> {
         return cols.concat(this._actionsColumn());
     }
 
-    _textColumn(col: Types.TextColumnModel) {
+    _textColumn(col: TextColumnModel) {
         return {
             key: col.key,
             title: col.title,
@@ -210,7 +214,7 @@ export class Table extends React.Component<Props, State> {
         };
     }
 
-    _numberColumn(col: Types.NumberColumnModel) {
+    _numberColumn(col: NumberColumnModel) {
         return {
             key: col.key,
             title: col.title,
@@ -231,7 +235,7 @@ export class Table extends React.Component<Props, State> {
         };
     }
 
-    _imageColumn(col: Types.ImageColumnModel) {
+    _imageColumn(col: ImageColumnModel) {
         return {
             key: col.key,
             title: col.title,
@@ -239,7 +243,13 @@ export class Table extends React.Component<Props, State> {
             className: 'app-td-image',
             render: (text: string, record: { id: string }, index: number) => {
                 if (text != null) {
-                    return <img src={text} />;
+                    return (
+                        <Popover placement={col.popoverPlacement} content={<img src={record[col.popoverKey]} />}>
+                            <a target="_blank" href={record[col.clickKey]}>
+                                <img src={record[col.key]} />
+                            </a>
+                        </Popover>
+                    );
                 } else {
                     return <span />;
                 }
