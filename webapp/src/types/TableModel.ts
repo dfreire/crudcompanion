@@ -13,4 +13,5 @@ export interface TableModel extends BlockModel {
     bulkUpdate?: boolean;
     
     records?: any[];
+    selectedIds: string[];
 }

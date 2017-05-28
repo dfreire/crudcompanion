@@ -24,19 +24,43 @@ class App extends React.Component<{}, State> {
         };
 
         this.handlers = {
-            onSelectedLanguage: (language: Language) => {
+            onSelectLanguage: (language: Language) => {
                 const { pageContext } = this.state;
                 if (pageContext != null) {
                     const query = { ...queryString.parse(pageContext.querystring), language_id: language };
                     page(Util.cleanUrl(`${pageContext.pathname}/?${queryString.stringify(query)}`));
                 }
-            }
+            },
+
+            onSelectTableIds: (blockIdx: number, selectedIds: string[]) => {
+                const state = { ...this.state };
+                state.pageModel.blocks[blockIdx] = { ...state.pageModel.blocks[blockIdx], selectedIds };
+                this.setState(state);
+            },
+
+            onRemoveTableRecords: (blockIdx: number, recordIds: string[]) => {
+                const removeHandler = (this.state.pageModel.blocks[blockIdx] as TableModel).removeHandler;
+                Ajax.del(`/api/${removeHandler}/?${queryString.stringify({ id: recordIds })}`)
+                    .then(() => {
+                        const tableModel = this.state.pageModel.blocks[blockIdx] as TableModel;
+                        tableModel.selectedIds = _.filter(tableModel.selectedIds, (selectedId) => {
+                            return recordIds.indexOf(selectedId) === -1;
+                        });
+                        tableModel.records = _.filter(tableModel.records || [], (record: any) => {
+                            return recordIds.indexOf(record.id) === -1;
+                        });
+                        const state = { ...this.state };
+                        state.pageModel.blocks[blockIdx] = tableModel;
+                        this.setState(state);
+                    });
+            },
         };
 
         this._fetch = _.debounce(this._fetch.bind(this), 300);
     }
 
     render() {
+        console.log('state', this.state);
         if (this.state.pageContext != null) {
             const props: Props = { ...this.state, ...this.handlers };
             return <Page {...props} />;

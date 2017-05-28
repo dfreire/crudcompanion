@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as queryString from 'query-string';
 import * as numeral from 'numeral';
 import { Table as AntdTable, Button, Menu, Dropdown, Icon, Modal, Popconfirm, Upload, message, Popover } from 'antd';
-import * as Ajax from '../../Ajax';
 import { Link, navigateTo } from '../../Link';
 import { Props } from '../../types/Props';
 import { TableModel } from '../../types/TableModel';
@@ -12,11 +11,10 @@ import { NumberColumnModel } from '../../types/NumberColumnModel';
 import { ImageColumnModel } from '../../types/ImageColumnModel';
 
 interface TableProps extends Props {
-    tableModel: TableModel;
+    blockIdx: number;
 }
 
 interface State {
-    selectedIds: string[];
     uploadingMap: { [uid: string]: { percent: number; size: number } };
 }
 
@@ -26,16 +24,19 @@ export class Table extends React.Component<TableProps, State> {
     constructor(props: TableProps) {
         super(props);
         this.state = {
-            selectedIds: [],
             uploadingMap: {},
         };
         //this._debouncedFetch = _.debounce(this._fetch.bind(this), 500);
     }
 
+    _tableModel(): TableModel {
+        return this.props.pageModel.blocks[this.props.blockIdx] as TableModel;
+    }
+
     render() {
         return (
             <div>
-                <h2>{this.props.tableModel.title}</h2>
+                <h2>{this._tableModel().title}</h2>
                 {this._renderButtons()}
                 <AntdTable
                     columns={this._columns()}
@@ -43,7 +44,7 @@ export class Table extends React.Component<TableProps, State> {
                     rowSelection={this._rowSelection()}
                     size="middle"
                     bordered={true}
-                    loading={this.props.tableModel.isLoading}
+                    loading={this._tableModel().isLoading}
                     locale={{
                         filterConfirm: 'Ok',
                         filterReset: 'Reset',
@@ -70,7 +71,7 @@ export class Table extends React.Component<TableProps, State> {
     }
 
     _renderCreateButton() {
-        const createPage = this.props.tableModel.createPage;
+        const createPage = this._tableModel().createPage;
 
         if (createPage == null) {
             return <span />;
@@ -88,7 +89,7 @@ export class Table extends React.Component<TableProps, State> {
     }
 
     _renderUploadButton() {
-        const uploadHandler = this.props.tableModel.uploadHandler;
+        const uploadHandler = this._tableModel().uploadHandler;
 
         const props = {
             name: 'file',
@@ -144,41 +145,39 @@ export class Table extends React.Component<TableProps, State> {
     }
 
     _renderBulkActionsButton() {
+        const selectedIds = this._tableModel().selectedIds || [];
+
         const onConfirmBulkRemove = () => {
-            Ajax.del(`/api/${this.props.tableModel.removeHandler}/?${queryString.stringify({ id: this.state.selectedIds })}`)
-                .then(() => {
-                    this.setState({ selectedIds: [] });
-                    // this._fetch();
-                });
+            this.props.onRemoveTableRecords(this.props.blockIdx, selectedIds);
         };
 
         const onBulkRemove = () => {
             Modal.confirm({ title: 'Are you sure?', onOk: onConfirmBulkRemove, okText: 'Yes', cancelText: 'No' });
         };
 
-        const menu = (
+        const menu = (            
             <Menu onClick={onBulkRemove}>
-                <Menu.Item key="bulk-remove" disabled={this.state.selectedIds.length === 0}>Remove</Menu.Item>
+                <Menu.Item key="bulk-remove" disabled={selectedIds.length === 0}>Remove</Menu.Item>
             </Menu>
         );
 
         return (
             <Dropdown overlay={menu} placement="bottomLeft">
                 <Button style={{ marginBottom: 10 }}>
-                    With {this.state.selectedIds.length} selected... <Icon type="down" />
+                    With {selectedIds.length} selected... <Icon type="down" />
                 </Button>
             </Dropdown>
         );
     }
 
     _dataSource() {
-        return (this.props.tableModel.records || []).map((record) => {
+        return (this._tableModel().records || []).map((record) => {
             return Object.assign({}, record, { key: record.id });
         });
     }
 
     _columns() {
-        const cols: any[] = this.props.tableModel.cols.map((col) => {
+        const cols: any[] = this._tableModel().cols.map((col) => {
             switch (col.type) {
                 case 'text': return this._textColumn(col as TextColumnModel);
                 case 'number': return this._numberColumn(col as NumberColumnModel);
@@ -261,17 +260,12 @@ export class Table extends React.Component<TableProps, State> {
                 );
 
                 const onRemove = () => {
-                    Ajax.del(`/api/${this.props.tableModel.removeHandler}/?${queryString.stringify({ id: record.id })}`)
-                        .then(() => {
-                            const selectedIds = _.without(this.state.selectedIds, record.id);
-                            this.setState({ selectedIds });
-                            // this._fetch();
-                        });
+                    this.props.onRemoveTableRecords(this.props.blockIdx, [ record.id ]);
                 };
 
                 return (
                     <span>
-                        <Link text="Edit" path={`${this.props.tableModel.updatePage}?${editQueryString}`} />
+                        <Link text="Edit" path={`${this._tableModel().updatePage}?${editQueryString}`} />
                         <span className="ant-divider" />
                         <Popconfirm title="Are you sure?" onConfirm={onRemove} okText="Yes" cancelText="No">
                             <a>Remove</a>
@@ -285,9 +279,9 @@ export class Table extends React.Component<TableProps, State> {
     _rowSelection() {
         return {
             // type: 'checkbox' or 'radio'
-            selectedRowKeys: this.state.selectedIds,
+            selectedRowKeys: this._tableModel().selectedIds,
             onChange: (selectedRowKeys: any, selectedRows: any) => {
-                this.setState({ selectedIds: selectedRowKeys });
+                this.props.onSelectTableIds(this.props.blockIdx, selectedRowKeys);
             }
         };
     }
