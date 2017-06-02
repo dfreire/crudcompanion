@@ -19,24 +19,21 @@ interface State {
 }
 
 export class Table extends React.Component<TableProps, State> {
-    private _debouncedFetch: { (): void };
-
     constructor(props: TableProps) {
         super(props);
         this.state = {
             uploadingMap: {},
         };
-        //this._debouncedFetch = _.debounce(this._fetch.bind(this), 500);
     }
 
-    _tableModel(): TableModel {
+    _getModel(): TableModel {
         return this.props.pageModel.blocks[this.props.blockIdx] as TableModel;
     }
 
     render() {
         return (
             <div>
-                <h2>{this._tableModel().title}</h2>
+                <h2>{this._getModel().title}</h2>
                 {this._renderButtons()}
                 <AntdTable
                     columns={this._columns()}
@@ -44,7 +41,7 @@ export class Table extends React.Component<TableProps, State> {
                     rowSelection={this._rowSelection()}
                     size="middle"
                     bordered={true}
-                    loading={this._tableModel().isLoading}
+                    loading={this._getModel().isLoading}
                     locale={{
                         filterConfirm: 'Ok',
                         filterReset: 'Reset',
@@ -71,7 +68,7 @@ export class Table extends React.Component<TableProps, State> {
     }
 
     _renderCreateButton() {
-        const createPage = this._tableModel().createPage;
+        const createPage = this._getModel().createPage;
 
         if (createPage == null) {
             return <span />;
@@ -89,7 +86,7 @@ export class Table extends React.Component<TableProps, State> {
     }
 
     _renderUploadButton() {
-        const uploadHandler = this._tableModel().uploadHandler;
+        const uploadHandler = this._getModel().uploadHandler;
 
         const props = {
             name: 'file',
@@ -108,12 +105,11 @@ export class Table extends React.Component<TableProps, State> {
                     // message.success(`Uploaded: ${info.file.name}`);
                     delete uploadingMap[uid];
                     this.setState({ uploadingMap });
-                    this._debouncedFetch();
+                    this.props.onTableUploadedFile(this.props.blockIdx);
                 } else if (info.file.status === 'error') {
                     message.error(`Problem uploading: ${info.file.name}`);
                     delete uploadingMap[uid];
                     this.setState({ uploadingMap });
-                    this._debouncedFetch();
                 }
             },
         };
@@ -145,10 +141,10 @@ export class Table extends React.Component<TableProps, State> {
     }
 
     _renderBulkActionsButton() {
-        const selectedIds = this._tableModel().selectedIds || [];
+        const selectedIds = this._getModel().selectedIds || [];
 
         const onConfirmBulkRemove = () => {
-            this.props.onRemoveTableRecords(this.props.blockIdx, selectedIds);
+            this.props.onTableRemoveRecords(this.props.blockIdx, selectedIds);
         };
 
         const onBulkRemove = () => {
@@ -171,13 +167,13 @@ export class Table extends React.Component<TableProps, State> {
     }
 
     _dataSource() {
-        return (this._tableModel().records || []).map((record) => {
+        return (this._getModel().records || []).map((record) => {
             return Object.assign({}, record, { key: record.id });
         });
     }
 
     _columns() {
-        const cols: any[] = this._tableModel().cols.map((col) => {
+        const cols: any[] = this._getModel().cols.map((col) => {
             switch (col.type) {
                 case 'text': return this._textColumn(col as TextColumnModel);
                 case 'number': return this._numberColumn(col as NumberColumnModel);
@@ -260,12 +256,12 @@ export class Table extends React.Component<TableProps, State> {
                 );
 
                 const onRemove = () => {
-                    this.props.onRemoveTableRecords(this.props.blockIdx, [ record.id ]);
+                    this.props.onTableRemoveRecords(this.props.blockIdx, [ record.id ]);
                 };
 
                 return (
                     <span>
-                        <Link text="Edit" path={`${this._tableModel().updatePage}?${editQueryString}`} />
+                        <Link text="Edit" path={`${this._getModel().updatePage}?${editQueryString}`} />
                         <span className="ant-divider" />
                         <Popconfirm title="Are you sure?" onConfirm={onRemove} okText="Yes" cancelText="No">
                             <a>Remove</a>
@@ -279,9 +275,9 @@ export class Table extends React.Component<TableProps, State> {
     _rowSelection() {
         return {
             // type: 'checkbox' or 'radio'
-            selectedRowKeys: this._tableModel().selectedIds,
+            selectedRowKeys: this._getModel().selectedIds,
             onChange: (selectedRowKeys: any, selectedRows: any) => {
-                this.props.onSelectTableIds(this.props.blockIdx, selectedRowKeys);
+                this.props.onTableSelectIds(this.props.blockIdx, selectedRowKeys);
             }
         };
     }

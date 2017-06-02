@@ -1,43 +1,33 @@
 import * as React from 'react';
-import * as queryString from 'query-string';
 import { Form as AntdForm, Row, Col, Button, Popconfirm } from 'antd';
-import * as Util from '../../Util';
-import * as Ajax from '../../Ajax';
-import { navigateTo } from '../../Link';
 import { TextField } from './TextField';
 import { TextAreaField } from './TextAreaField';
-import { SelectOneField } from './SelectOneField';
-import { Language } from '../../types/Language';
+//import { SelectOneField } from './SelectOneField';
+import { Props } from '../../types/Props';
 import { FormModel } from '../../types/FormModel';
 import { FieldModel } from '../../types/FieldModel';
-import { TextFieldModel } from '../../types/TextFieldModel';
-import { TextAreaFieldModel } from '../../types/TextAreaFieldModel';
-import { SelectOneFieldModel } from '../../types/SelectOneFieldModel';
 
-interface Props {
-    pageContext: PageJS.Context;
-    language: Language;
-    model: FormModel;
+interface FormProps extends Props {
+    blockIdx: number;
 }
 
 interface State {
-    record: any;
-    loading: boolean;
 }
 
-export class Form extends React.Component<Props, State> {
-    constructor(props: Props) {
+export class Form extends React.Component<FormProps, State> {
+    constructor(props: FormProps) {
         super(props);
-        this.state = {
-            record: {},
-            loading: false,
-        };
+        this.state = {};
+    }
+
+    _getModel(): FormModel {
+        return this.props.pageModel.blocks[this.props.blockIdx] as FormModel;
     }
 
     render() {
         return (
             <div>
-                <h2>{this.props.model.title}</h2>
+                <h2>{this._getModel().title}</h2>
                 <AntdForm layout="vertical">
                     {this._renderFields()}
                     {this._renderButtons()}
@@ -47,32 +37,23 @@ export class Form extends React.Component<Props, State> {
     }
 
     _renderFields() {
-        return this.props.model.fields.map((fieldModel, i) => {
+        return this._getModel().fields.map((fieldModel, i) => {
             return (
-                <div key={i}>{this._renderField(fieldModel)}</div>
+                <div key={i}>{this._renderField(fieldModel, i)}</div>
             );
         });
     }
 
-    _renderField(fieldModel: FieldModel) {
-        const value = this.state.record[fieldModel.key];
-
-        const commonProps = Object.assign({}, this.props, {
-            value,
-            onChange: (fieldKey: string, fieldValue: any) => {
-                const record = Object.assign({}, this.state.record);
-                record[fieldKey] = fieldValue || null;
-                this.setState({ record });
-            }
-        });
-
+    _renderField(fieldModel: FieldModel, i: number) {
         switch (fieldModel.type) {
             case 'text':
-                return <TextField {...commonProps} model={fieldModel as TextFieldModel} />;
+                return <TextField {...this.props} fieldIdx={i} />;
             case 'textarea':
-                return <TextAreaField {...commonProps} model={fieldModel as TextAreaFieldModel} />;
+                return <TextAreaField {...this.props} fieldIdx={i} />;
+            /*
             case 'select-one':
-                return <SelectOneField {...commonProps} model={fieldModel as SelectOneFieldModel} />;
+                return <SelectOneField {...this.props} fieldKey={fieldModel.key} />;
+            */
             default:
                 return <div />;
         }
@@ -80,23 +61,15 @@ export class Form extends React.Component<Props, State> {
 
     _renderButtons() {
         const onSave = () => {
-            const qs = queryString.stringify({ language_id: this.props.language });
-            Ajax.post(`/api/${this.props.model.saveHandler}/?${qs}`, this.state.record)
-                .then(() => {
-                    navigateTo(this.props.model.cancelPage);
-                });
+            this.props.onFormRecordSave(this.props.blockIdx);
         };
 
         const onCancel = () => {
-            navigateTo(this.props.model.cancelPage);
+            this.props.onFormCancel(this.props.blockIdx);
         };
 
         const onRemove = () => {
-            const qs = queryString.stringify({ id: this.state.record.id });
-            Ajax.del(`/api/${this.props.model.removeHandler}/?${qs}`)
-                .then(() => {
-                    navigateTo(this.props.model.cancelPage);
-                });
+            this.props.onFormRecordRemove(this.props.blockIdx);
         };
 
         return (
@@ -106,7 +79,7 @@ export class Form extends React.Component<Props, State> {
                     <Button style={{ width: 100, marginLeft: 10 }} onClick={onCancel}>Cancel</Button>
                 </Col>
                 <Col span={12} style={{ textAlign: 'right' }}>
-                    {this.props.model.removeHandler != null && (
+                    {this._getModel().removeHandler != null && (
                         <Popconfirm title="Are you sure?" onConfirm={onRemove} okText="Yes" cancelText="No">
                             <Button type="danger" style={{ width: 100 }}>Remove</Button>
                         </Popconfirm>
@@ -114,30 +87,5 @@ export class Form extends React.Component<Props, State> {
                 </Col>
             </Row>
         );
-    }
-
-    componentDidMount() {
-        if (this.props.pageContext.querystring != null) {
-            this._fetch();
-        }
-    }
-
-    componentDidUpdate(prevProps: Props, prevState: State) {
-        if (this.props.pageContext.querystring != null
-            && this.props.pageContext.querystring !== prevProps.pageContext.querystring) {
-            this._fetch();
-        }
-    }
-
-    _fetch() {
-        if (this.props.model.getHandler == null) {
-            this.setState({ record: {} });
-        } else {
-            this.setState({ loading: true });
-            Ajax.get(Util.cleanUrl(`/api/${this.props.model.getHandler}?${this.props.pageContext.querystring}`))
-                .then((response) => {
-                    this.setState({ record: response, loading: false });
-                });
-        }
     }
 }

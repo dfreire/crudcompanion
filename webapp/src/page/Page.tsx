@@ -4,7 +4,6 @@ import { Link } from '../Link';
 import { Props } from '../types/Props';
 import { Language } from '../types/Language';
 import { BlockModel } from '../types/BlockModel';
-import { FormModel } from '../types/FormModel';
 import { Table } from './table/Table';
 import { Form } from './form/Form';
 
@@ -68,7 +67,7 @@ export class Page extends React.Component<Props, State> {
 
     _renderLanguage() {
         const onClick = (params: { item: any, key: string, keyPath: any }) => {
-            this.props.onSelectLanguage(params.key as Language);
+            this.props.onPageSelectLanguage(params.key as Language);
         };
 
         const uppercase = { textTransform: 'uppercase' };
@@ -104,16 +103,11 @@ export class Page extends React.Component<Props, State> {
     }
 
     _renderBlock(blockModel: BlockModel, i: number) {
-        const commonProps = {
-            pageContext: this.props.pageContext,
-            language: this.props.language,
-        };
-
         switch (blockModel.type) {
             case 'table':
                 return <Table {...this.props} blockIdx={i} />;
             case 'form':
-                return <Form {...commonProps} model={blockModel as FormModel} />;
+                return <Form {...this.props} blockIdx={i} />;
             default:
                 return <p>JSON.stringify(block)</p>;
         }

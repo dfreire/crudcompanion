@@ -1,40 +1,50 @@
 import * as React from 'react';
 import { Form, Input } from 'antd';
-import { Language } from '../../types/Language';
+import { Props } from '../../types/Props';
+import { FormModel } from '../../types/FormModel';
 import { TextAreaFieldModel } from '../../types/TextAreaFieldModel';
 
-interface Props {
-    pageContext: PageJS.Context;
-    language: Language;
-    model: TextAreaFieldModel;
-    value: string;
-    onChange: {(fieldKey: string, evt: any): void};
+interface FieldProps extends Props {
+    blockIdx: number;
+    fieldIdx: number;
 }
 
 interface State {
 }
 
-export class TextAreaField extends React.Component<Props, State> {
-    constructor(props: Props) {
+export class TextAreaField extends React.Component<FieldProps, State> {
+    constructor(props: FieldProps) {
         super(props);
         this.state = {};
     }
 
+    _getModel(): TextAreaFieldModel {
+        const formModel = this.props.pageModel.blocks[this.props.blockIdx] as FormModel;
+        return (formModel.fields[this.props.fieldIdx] as TextAreaFieldModel) || {};
+    }
+
+    _getRecord(): any {
+        const formModel = this.props.pageModel.blocks[this.props.blockIdx] as FormModel;
+        return formModel.record || {};
+    }
+
     render() {
         const withRows: any = {
-            rows: this.props.model.rows || 4
+            rows: this._getRecord().rows || 4
         };
 
         return (
-            <Form.Item label={this.props.model.title}>
+            <Form.Item label={this._getModel().title}>
                 <Input
                     type="textarea"
                     {...withRows}
-                    placeholder={this.props.model.placeholder}
-                    value={this.props.value}
-                    onChange={(evt: any) => this.props.onChange(this.props.model.key, evt.target.value)}
+                    placeholder={this._getModel().placeholder}
+                    value={this._getRecord()[this._getModel().key]}
+                    onChange={(evt: any) => this.props.onFormRecordChange(this.props.blockIdx, this._getModel().key, evt.target.value)}
                 />
             </Form.Item>
         );
     }
 }
+
+

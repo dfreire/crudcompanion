@@ -8,7 +8,9 @@ import { State } from './types/State';
 import { Props } from './types/Props';
 import { Language } from './types/Language';
 import { PageModel } from './types/PageModel';
+import { BlockModel } from './types/BlockModel';
 import { TableModel } from './types/TableModel';
+import { FormModel } from './types/FormModel';
 import { Page } from './page/Page';
 
 class App extends React.Component<{}, State> {
@@ -24,7 +26,7 @@ class App extends React.Component<{}, State> {
         };
 
         this.handlers = {
-            onSelectLanguage: (language: Language) => {
+            onPageSelectLanguage: (language: Language) => {
                 const { pageContext } = this.state;
                 if (pageContext != null) {
                     const query = { ...queryString.parse(pageContext.querystring), language_id: language };
@@ -32,13 +34,13 @@ class App extends React.Component<{}, State> {
                 }
             },
 
-            onSelectTableIds: (blockIdx: number, selectedIds: string[]) => {
+            onTableSelectIds: (blockIdx: number, selectedIds: string[]) => {
                 const state = { ...this.state };
-                state.pageModel.blocks[blockIdx] = { ...state.pageModel.blocks[blockIdx], selectedIds };
+                (state.pageModel.blocks[blockIdx] as TableModel).selectedIds = selectedIds;
                 this.setState(state);
             },
 
-            onRemoveTableRecords: (blockIdx: number, recordIds: string[]) => {
+            onTableRemoveRecords: (blockIdx: number, recordIds: string[]) => {
                 const removeHandler = (this.state.pageModel.blocks[blockIdx] as TableModel).removeHandler;
                 Ajax.del(`/api/${removeHandler}/?${queryString.stringify({ id: recordIds })}`)
                     .then(() => {
@@ -54,9 +56,45 @@ class App extends React.Component<{}, State> {
                         this.setState(state);
                     });
             },
+
+            onTableUploadedFile: (blockIdx: number) => {
+                this._fetchBlock(this.state.pageModel.blocks[blockIdx], blockIdx);
+            },
+
+            onFormRecordChange: (blockIdx: number, key: string, value: any) => {
+                const state = { ...this.state };
+                const record = (state.pageModel.blocks[blockIdx] as FormModel).record || {};
+                record[key] = value || null;
+                (state.pageModel.blocks[blockIdx] as FormModel).record = record;
+                this.setState(state);
+            },
+
+            onFormRecordSave: (blockIdx: number) => {
+                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
+                const qs = queryString.stringify({ language_id: this.state.language });
+                Ajax.post(`/api/${formModel.saveHandler}/?${qs}`, formModel.record)
+                    .then(() => {
+                        page(formModel.cancelPage);
+                    });
+            },
+
+            onFormRecordRemove: (blockIdx: number) => {
+                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
+                const qs = queryString.stringify({ id: (formModel.record || {})['id'] });
+                Ajax.del(`/api/${formModel.removeHandler}/?${qs}`)
+                    .then(() => {
+                        page(formModel.cancelPage);
+                    });
+            },
+
+            onFormCancel: (blockIdx: number) => {
+                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
+                page(formModel.cancelPage);
+            },
         };
 
         this._fetch = _.debounce(this._fetch.bind(this), 300);
+        this.handlers.onTableUploadedFile = _.debounce(this.handlers.onTableUploadedFile.bind(this), 500);
     }
 
     render() {
@@ -113,20 +151,25 @@ class App extends React.Component<{}, State> {
     _fetch() {
         console.log('fetch');
         this.state.pageModel.blocks.forEach((blockModel, i) => {
-            const state = { ...this.state };
-            state.pageModel.blocks[i].isLoading = true;
-            this.setState(state);
-
-            switch (blockModel.type) {
-                case 'table':
-                    this._fetchTable(blockModel as TableModel, i);
-                    break;
-                case 'form':
-                    break;
-                default:
-                    break;
-            }
+            this._fetchBlock(blockModel, i);
         });
+    }
+
+    _fetchBlock(blockModel: BlockModel, i: number) {
+        const state = { ...this.state };
+        state.pageModel.blocks[i].isLoading = true;
+        this.setState(state);
+
+        switch (blockModel.type) {
+            case 'table':
+                this._fetchTable(blockModel as TableModel, i);
+                break;
+            case 'form':
+                this._fetchForm(blockModel as FormModel, i);
+                break;
+            default:
+                break;
+        }
     }
 
     _fetchTable(tableModel: TableModel, i: number) {
@@ -140,6 +183,27 @@ class App extends React.Component<{}, State> {
                 state.pageModel.blocks[i] = tableModel;
                 this.setState(state);
             });
+    }
+
+    _fetchForm(formModel: FormModel, i: number) {
+        const { pageContext } = this.state;
+        if (pageContext != null) {
+            if (formModel.getHandler == null) {
+                // new record
+                formModel.record = {};
+                const state = { ...this.state };
+                state.pageModel.blocks[i] = formModel;
+                this.setState(state);
+            } else {
+                Ajax.get(Util.cleanUrl(`/api/${formModel.getHandler}?${pageContext.querystring}`))
+                    .then((response) => {
+                        formModel.record = response;
+                        const state = { ...this.state };
+                        state.pageModel.blocks[i] = formModel;
+                        this.setState(state);
+                    });
+            }
+        }
     }
 }
 

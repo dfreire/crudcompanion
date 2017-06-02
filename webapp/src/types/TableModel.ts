@@ -11,7 +11,7 @@ export interface TableModel extends BlockModel {
     createPage?: string;
     updatePage: string;
     bulkUpdate?: boolean;
-    
+
     records?: any[];
     selectedIds: string[];
 }
