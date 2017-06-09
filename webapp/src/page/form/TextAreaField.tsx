@@ -37,7 +37,7 @@ export class TextAreaField extends React.Component<FieldProps, State> {
         );
     }
 
-    _onChange(evt: any) {
+    _onChange = (evt: any) => {
         this.props.onFormRecordChange(
             this.props.blockIdx,
             this.props.formModel,
