@@ -4,6 +4,8 @@ import { Link } from '../Link';
 import { Props } from '../types/Props';
 import { Language } from '../types/Language';
 import { BlockModel } from '../types/BlockModel';
+import { TableModel } from '../types/TableModel';
+import { FormModel } from '../types/FormModel';
 import { Table } from './table/Table';
 import { Form } from './form/Form';
 
@@ -105,9 +107,9 @@ export class Page extends React.Component<Props, State> {
     _renderBlock(blockModel: BlockModel, i: number) {
         switch (blockModel.type) {
             case 'table':
-                return <Table {...this.props} blockIdx={i} />;
+                return <Table {...this.props} blockIdx={i} tableModel={blockModel as TableModel} />;
             case 'form':
-                return <Form {...this.props} blockIdx={i} />;
+                return <Form {...this.props} blockIdx={i} formModel={blockModel as FormModel} />;
             default:
                 return <p>JSON.stringify(block)</p>;
         }

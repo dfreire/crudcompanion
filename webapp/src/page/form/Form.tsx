@@ -2,13 +2,14 @@ import * as React from 'react';
 import { Form as AntdForm, Row, Col, Button, Popconfirm } from 'antd';
 import { TextField } from './TextField';
 import { TextAreaField } from './TextAreaField';
-//import { SelectOneField } from './SelectOneField';
+// import { SelectOneField } from './SelectOneField';
 import { Props } from '../../types/Props';
 import { FormModel } from '../../types/FormModel';
 import { FieldModel } from '../../types/FieldModel';
 
 interface FormProps extends Props {
     blockIdx: number;
+    formModel: FormModel;
 }
 
 interface State {
@@ -27,7 +28,7 @@ export class Form extends React.Component<FormProps, State> {
     render() {
         return (
             <div>
-                <h2>{this._getModel().title}</h2>
+                <h2>{this.props.formModel.title}</h2>
                 <AntdForm layout="vertical">
                     {this._renderFields()}
                     {this._renderButtons()}
@@ -37,7 +38,7 @@ export class Form extends React.Component<FormProps, State> {
     }
 
     _renderFields() {
-        return this._getModel().fields.map((fieldModel, i) => {
+        return this.props.formModel.fields.map((fieldModel, i) => {
             return (
                 <div key={i}>{this._renderField(fieldModel, i)}</div>
             );
@@ -47,9 +48,9 @@ export class Form extends React.Component<FormProps, State> {
     _renderField(fieldModel: FieldModel, i: number) {
         switch (fieldModel.type) {
             case 'text':
-                return <TextField {...this.props} fieldIdx={i} />;
+                return <TextField {...this.props} fieldIdx={i} fieldModel={fieldModel} />;
             case 'textarea':
-                return <TextAreaField {...this.props} fieldIdx={i} />;
+                return <TextAreaField {...this.props} fieldIdx={i} fieldModel={fieldModel} />;
             /*
             case 'select-one':
                 return <SelectOneField {...this.props} fieldKey={fieldModel.key} />;
@@ -61,15 +62,15 @@ export class Form extends React.Component<FormProps, State> {
 
     _renderButtons() {
         const onSave = () => {
-            this.props.onFormRecordSave(this.props.blockIdx);
+            this.props.onFormRecordSave(this.props.blockIdx, this.props.formModel);
         };
 
         const onCancel = () => {
-            this.props.onFormCancel(this.props.blockIdx);
+            this.props.onFormCancel(this.props.blockIdx, this.props.formModel);
         };
 
         const onRemove = () => {
-            this.props.onFormRecordRemove(this.props.blockIdx);
+            this.props.onFormRecordRemove(this.props.blockIdx, this.props.formModel);
         };
 
         return (
@@ -79,7 +80,7 @@ export class Form extends React.Component<FormProps, State> {
                     <Button style={{ width: 100, marginLeft: 10 }} onClick={onCancel}>Cancel</Button>
                 </Col>
                 <Col span={12} style={{ textAlign: 'right' }}>
-                    {this._getModel().removeHandler != null && (
+                    {this.props.formModel.removeHandler != null && (
                         <Popconfirm title="Are you sure?" onConfirm={onRemove} okText="Yes" cancelText="No">
                             <Button type="danger" style={{ width: 100 }}>Remove</Button>
                         </Popconfirm>

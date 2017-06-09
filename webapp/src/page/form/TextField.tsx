@@ -7,6 +7,8 @@ import { TextFieldModel } from '../../types/TextFieldModel';
 interface FieldProps extends Props {
     blockIdx: number;
     fieldIdx: number;
+    formModel: FormModel;
+    fieldModel: TextFieldModel;
 }
 
 interface State {
@@ -18,26 +20,27 @@ export class TextField extends React.Component<FieldProps, State> {
         this.state = {};
     }
 
-    _getModel(): TextFieldModel {
-        const formModel = this.props.pageModel.blocks[this.props.blockIdx] as FormModel;
-        return (formModel.fields[this.props.fieldIdx] as TextFieldModel) || {};
-    }
-
-    _getRecord(): any {
-        const formModel = this.props.pageModel.blocks[this.props.blockIdx] as FormModel;
-        return formModel.record || {};
-    }
-
     render() {
+        const record = this.props.formModel.record || {};
+
         return (
-            <Form.Item label={this._getModel().title}>
+            <Form.Item label={this.props.fieldModel.title}>
                 <Input
                     type="text"
-                    placeholder={this._getModel().placeholder}
-                    value={this._getRecord()[this._getModel().key]}
-                    onChange={(evt: any) => this.props.onFormRecordChange(this.props.blockIdx, this._getModel().key, evt.target.value)}
+                    placeholder={this.props.fieldModel.placeholder}
+                    value={record[this.props.fieldModel.key]}
+                    onChange={this._onChange}
                 />
             </Form.Item>
+        );
+    }
+
+    _onChange(evt: any) {
+        this.props.onFormRecordChange(
+            this.props.blockIdx,
+            this.props.formModel,
+            this.props.fieldModel,
+            evt.target.value
         );
     }
 }

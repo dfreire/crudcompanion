@@ -11,6 +11,7 @@ import { PageModel } from './types/PageModel';
 import { BlockModel } from './types/BlockModel';
 import { TableModel } from './types/TableModel';
 import { FormModel } from './types/FormModel';
+import { FieldModel } from './types/FieldModel';
 import { Page } from './page/Page';
 
 class App extends React.Component<{}, State> {
@@ -34,17 +35,16 @@ class App extends React.Component<{}, State> {
                 }
             },
 
-            onTableSelectIds: (blockIdx: number, selectedIds: string[]) => {
+            onTableSelectIds: (blockIdx: number, tableModel: TableModel, selectedIds: string[]) => {
                 const state = { ...this.state };
                 (state.pageModel.blocks[blockIdx] as TableModel).selectedIds = selectedIds;
                 this.setState(state);
             },
 
-            onTableRemoveRecords: (blockIdx: number, recordIds: string[]) => {
+            onTableRemoveRecords: (blockIdx: number, tableModel: TableModel, recordIds: string[]) => {
                 const removeHandler = (this.state.pageModel.blocks[blockIdx] as TableModel).removeHandler;
                 Ajax.del(`/api/${removeHandler}/?${queryString.stringify({ id: recordIds })}`)
                     .then(() => {
-                        const tableModel = this.state.pageModel.blocks[blockIdx] as TableModel;
                         tableModel.selectedIds = _.filter(tableModel.selectedIds, (selectedId) => {
                             return recordIds.indexOf(selectedId) === -1;
                         });
@@ -57,20 +57,19 @@ class App extends React.Component<{}, State> {
                     });
             },
 
-            onTableUploadedFile: (blockIdx: number) => {
+            onTableUploadedFile: (blockIdx: number, tableModel: TableModel) => {
                 this._fetchBlock(this.state.pageModel.blocks[blockIdx], blockIdx);
             },
 
-            onFormRecordChange: (blockIdx: number, key: string, value: any) => {
+            onFormRecordChange: (blockIdx: number, formModel: FormModel, fieldModel: FieldModel, value: any) => {
                 const state = { ...this.state };
                 const record = (state.pageModel.blocks[blockIdx] as FormModel).record || {};
-                record[key] = value || null;
+                record[fieldModel.key] = value || null;
                 (state.pageModel.blocks[blockIdx] as FormModel).record = record;
                 this.setState(state);
             },
 
-            onFormRecordSave: (blockIdx: number) => {
-                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
+            onFormRecordSave: (blockIdx: number, formModel: FormModel) => {
                 const qs = queryString.stringify({ language_id: this.state.language });
                 Ajax.post(`/api/${formModel.saveHandler}/?${qs}`, formModel.record)
                     .then(() => {
@@ -78,17 +77,16 @@ class App extends React.Component<{}, State> {
                     });
             },
 
-            onFormRecordRemove: (blockIdx: number) => {
-                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
-                const qs = queryString.stringify({ id: (formModel.record || {})['id'] });
+            onFormRecordRemove: (blockIdx: number, formModel: FormModel) => {
+                const record: any = formModel.record || {};
+                const qs = queryString.stringify({ id: record.id });
                 Ajax.del(`/api/${formModel.removeHandler}/?${qs}`)
                     .then(() => {
                         page(formModel.cancelPage);
                     });
             },
 
-            onFormCancel: (blockIdx: number) => {
-                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
+            onFormCancel: (blockIdx: number, formModel: FormModel) => {
                 page(formModel.cancelPage);
             },
         };
