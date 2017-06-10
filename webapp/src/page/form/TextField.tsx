@@ -29,6 +29,7 @@ export class TextField extends React.Component<FieldProps, State> {
                     type="text"
                     placeholder={this.props.fieldModel.placeholder}
                     value={record[this.props.fieldModel.key]}
+                    disabled={this.props.formModel.isLoading}
                     onChange={this._onChange}
                 />
             </Form.Item>

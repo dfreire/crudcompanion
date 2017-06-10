@@ -31,6 +31,7 @@ export class TextAreaField extends React.Component<FieldProps, State> {
                     {...withRows}
                     placeholder={this.props.fieldModel.placeholder}
                     value={record[this.props.fieldModel.key]}
+                    disabled={this.props.formModel.isLoading}
                     onChange={this._onChange}
                 />
             </Form.Item>

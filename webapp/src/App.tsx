@@ -122,6 +122,7 @@ class App extends React.Component<{}, State> {
                                 page(Util.cleanUrl(`${pageModel.redirect}/?${pageContext.querystring}`));
 
                             } else {
+                                pageModel.blocks.forEach(block => block.isLoading = true);
                                 this.setState({
                                     pageContext,
                                     language: query.language_id,
@@ -189,6 +190,7 @@ class App extends React.Component<{}, State> {
             if (formModel.getHandler == null) {
                 // new record
                 formModel.record = {};
+                formModel.isLoading = false;
                 const state = { ...this.state };
                 state.pageModel.blocks[i] = formModel;
                 this.setState(state);
@@ -196,6 +198,7 @@ class App extends React.Component<{}, State> {
                 Ajax.get(Util.cleanUrl(`/api/${formModel.getHandler}?${pageContext.querystring}`))
                     .then((response) => {
                         formModel.record = response;
+                        formModel.isLoading = false;
                         const state = { ...this.state };
                         state.pageModel.blocks[i] = formModel;
                         this.setState(state);

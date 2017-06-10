@@ -21,10 +21,6 @@ export class Form extends React.Component<FormProps, State> {
         this.state = {};
     }
 
-    _getModel(): FormModel {
-        return this.props.pageModel.blocks[this.props.blockIdx] as FormModel;
-    }
-
     render() {
         return (
             <div>
@@ -76,13 +72,32 @@ export class Form extends React.Component<FormProps, State> {
         return (
             <Row>
                 <Col span={12}>
-                    <Button type="primary" style={{ width: 100 }} onClick={onSave}>Save</Button>
-                    <Button style={{ width: 100, marginLeft: 10 }} onClick={onCancel}>Cancel</Button>
+                    <Button
+                        type="primary"
+                        style={{ width: 100 }}
+                        onClick={onSave}
+                        disabled={this.props.formModel.isLoading}
+                    >
+                        Save
+                    </Button>
+                    <Button
+                        style={{ width: 100, marginLeft: 10 }}
+                        onClick={onCancel}
+                        disabled={this.props.formModel.isLoading}
+                    >
+                        Cancel
+                    </Button>
                 </Col>
                 <Col span={12} style={{ textAlign: 'right' }}>
                     {this.props.formModel.removeHandler != null && (
                         <Popconfirm title="Are you sure?" onConfirm={onRemove} okText="Yes" cancelText="No">
-                            <Button type="danger" style={{ width: 100 }}>Remove</Button>
+                            <Button
+                                type="danger"
+                                style={{ width: 100 }}
+                                disabled={this.props.formModel.isLoading}
+                            >
+                                Remove
+                            </Button>
                         </Popconfirm>
                     )}
                 </Col>
