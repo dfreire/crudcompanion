@@ -2,10 +2,14 @@ import * as React from 'react';
 import { Form as AntdForm, Row, Col, Button, Popconfirm } from 'antd';
 import { TextField } from './TextField';
 import { TextAreaField } from './TextAreaField';
+import { SelectField } from './SelectField/SelectField';
 // import { SelectOneField } from './SelectOneField';
 import { Props } from '../../types/Props';
 import { FormModel } from '../../types/FormModel';
 import { FieldModel } from '../../types/FieldModel';
+import { TextFieldModel } from '../../types/TextFieldModel';
+import { TextAreaFieldModel } from '../../types/TextAreaFieldModel';
+import { SelectFieldModel } from '../../types/SelectFieldModel';
 
 interface FormProps extends Props {
     blockIdx: number;
@@ -44,9 +48,11 @@ export class Form extends React.Component<FormProps, State> {
     _renderField(fieldModel: FieldModel, i: number) {
         switch (fieldModel.type) {
             case 'text':
-                return <TextField {...this.props} fieldIdx={i} fieldModel={fieldModel} />;
+                return <TextField {...this.props} fieldIdx={i} fieldModel={fieldModel as TextFieldModel} />;
             case 'textarea':
-                return <TextAreaField {...this.props} fieldIdx={i} fieldModel={fieldModel} />;
+                return <TextAreaField {...this.props} fieldIdx={i} fieldModel={fieldModel as TextAreaFieldModel} />;
+            case 'select-one':
+                return <SelectField {...this.props} fieldIdx={i} fieldModel={fieldModel as SelectFieldModel} />;
             /*
             case 'select-one':
                 return <SelectOneField {...this.props} fieldKey={fieldModel.key} />;
