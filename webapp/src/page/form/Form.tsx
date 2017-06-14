@@ -64,15 +64,15 @@ export class Form extends React.Component<FormProps, State> {
 
     _renderButtons() {
         const onSave = () => {
-            this.props.onFormRecordSave(this.props.blockIdx, this.props.formModel);
+            this.props.onFormSaveRecord(this.props.blockIdx);
         };
 
         const onCancel = () => {
-            this.props.onFormCancel(this.props.blockIdx, this.props.formModel);
+            this.props.onFormCancel(this.props.blockIdx);
         };
 
         const onRemove = () => {
-            this.props.onFormRecordRemove(this.props.blockIdx, this.props.formModel);
+            this.props.onFormRemoveRecord(this.props.blockIdx);
         };
 
         return (

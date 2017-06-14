@@ -1,20 +1,20 @@
 import { State } from './State';
 import { Language } from './Language';
-import { TableModel } from '../types/TableModel';
-import { FormModel } from '../types/FormModel';
-import { FieldModel } from '../types/FieldModel';
 
 export interface Props extends State {
     pageContext: PageJS.Context;
 
     onPageSelectLanguage: { (language: Language): void };
 
-    onTableSelectIds: { (blockIdx: number, tableModel: TableModel, selectedIds: string[]): void };
-    onTableRemoveRecords: { (blockIdx: number, tableModel: TableModel, recordIds: string[]): void };
-    onTableUploadedFile: { (blockIdx: number, tableModel: TableModel): void };
+    onTableSelectIds: { (blockIdx: number, selectedIds: string[]): void };
+    onTableRemoveRecords: { (blockIdx: number, recordIds: string[]): void };
+    onTableUploadedFile: { (blockIdx: number): void };
     
-    onFormRecordChange: { (blockIdx: number, formModel: FormModel, fieldModel: FieldModel, value: any): void };
-    onFormRecordSave: { (blockIdx: number, formModel: FormModel): void };
-    onFormRecordRemove: { (blockIdx: number, formModel: FormModel): void };
-    onFormCancel: { (blockIdx: number, formModel: FormModel): void };
+    onFormChangeRecord: { (blockIdx: number, fieldIdx: number, value: any): void };
+    onFormSaveRecord: { (blockIdx: number): void };
+    onFormRemoveRecord: { (blockIdx: number): void };
+    onFormCancel: { (blockIdx: number): void };
+
+    onModalOpen: { (blockIdx: number, fieldIdx: number): void };
+    onModalClose: { (blockIdx: number, fieldIdx: number): void };
 };

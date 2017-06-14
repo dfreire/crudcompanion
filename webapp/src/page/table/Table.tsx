@@ -102,7 +102,7 @@ export class Table extends React.Component<TableProps, State> {
                     // message.success(`Uploaded: ${info.file.name}`);
                     delete uploadingMap[uid];
                     this.setState({ uploadingMap });
-                    this.props.onTableUploadedFile(this.props.blockIdx, this.props.tableModel);
+                    this.props.onTableUploadedFile(this.props.blockIdx);
                 } else if (info.file.status === 'error') {
                     message.error(`Problem uploading: ${info.file.name}`);
                     delete uploadingMap[uid];
@@ -141,7 +141,7 @@ export class Table extends React.Component<TableProps, State> {
         const selectedIds = this.props.tableModel.selectedIds || [];
 
         const onConfirmBulkRemove = () => {
-            this.props.onTableRemoveRecords(this.props.blockIdx, this.props.tableModel, selectedIds);
+            this.props.onTableRemoveRecords(this.props.blockIdx, selectedIds);
         };
 
         const onBulkRemove = () => {
@@ -253,7 +253,7 @@ export class Table extends React.Component<TableProps, State> {
                 );
 
                 const onRemove = () => {
-                    this.props.onTableRemoveRecords(this.props.blockIdx, this.props.tableModel, [ record.id ]);
+                    this.props.onTableRemoveRecords(this.props.blockIdx, [ record.id ]);
                 };
 
                 return (
@@ -274,7 +274,7 @@ export class Table extends React.Component<TableProps, State> {
             // type: 'checkbox' or 'radio'
             selectedRowKeys: this.props.tableModel.selectedIds,
             onChange: (selectedRowKeys: any, selectedRows: any) => {
-                this.props.onTableSelectIds(this.props.blockIdx, this.props.tableModel, selectedRowKeys);
+                this.props.onTableSelectIds(this.props.blockIdx, selectedRowKeys);
             }
         };
     }

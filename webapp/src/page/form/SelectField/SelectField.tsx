@@ -13,13 +13,14 @@ interface FieldProps extends Props {
 }
 
 interface State {
-    isModelOpen: boolean;
 }
 
 export class SelectField extends React.Component<FieldProps, State> {
     constructor(props: FieldProps) {
         super(props);
-        this.state = { isModelOpen: false };
+        this.state = {
+
+        };
     }
 
     render() {
@@ -35,41 +36,33 @@ export class SelectField extends React.Component<FieldProps, State> {
                     suffix={<Icon type="close" onClick={this._onClickedClear} />}
                     addonAfter={<Icon type="search" onClick={this._onClickedSearch} />}
                 />
-                <SelectModal
-                    {...this.props}
-                    isModelOpen={this.state.isModelOpen}
-                    onClickedSelect={this._onClickedSelect}
-                    onClickedCancel={this._onModelClickedCancel}
-                />
+                <SelectModal {...this.props} />
             </Form.Item>
         );
     }
 
     _onChange = (evt: any) => {
-        this.props.onFormRecordChange(
+        this.props.onFormChangeRecord(
             this.props.blockIdx,
-            this.props.formModel,
-            this.props.fieldModel,
+            this.props.fieldIdx,
             evt.target.value
         );
     }
 
     _onClickedSearch = () => {
         console.log('_onClickedSearch');
-        this.setState({ isModelOpen: true });
+        this.props.onModalOpen(
+            this.props.blockIdx,
+            this.props.fieldIdx,
+        );
     }
 
     _onClickedClear = () => {
         console.log('_onClickedClear');
-    }
-
-    _onClickedSelect = () => {
-        console.log('onClickedSelect');
-        this.setState({ isModelOpen: false });
-    }
-
-    _onModelClickedCancel = () => {
-        console.log('_onModelClickedCancel');
-        this.setState({ isModelOpen: false });
+        this.props.onFormChangeRecord(
+            this.props.blockIdx,
+            this.props.fieldIdx,
+            null // TODO
+        );
     }
 }

@@ -10,10 +10,6 @@ interface FieldProps extends Props {
     fieldIdx: number;
     formModel: FormModel;
     fieldModel: SelectFieldModel;
-
-    isModelOpen: boolean;
-    onClickedSelect: { (): void };
-    onClickedCancel: { (): void };
 }
 
 interface State {
@@ -23,17 +19,34 @@ export class SelectModal extends React.Component<FieldProps, State> {
     render() {
         const selectedIds = this.props.fieldModel.selectedIds || [];
 
+        // (blockIdx: number, fieldIdx: number)
+
         return (
             <Modal
                 title={this.props.fieldModel.title}
-                visible={this.props.isModelOpen}
-                onOk={this.props.onClickedSelect}
-                onCancel={this.props.onClickedCancel}
+                visible={this.props.fieldModel.isModalOpen}
+                onOk={this._onOk}
+                onCancel={this._onCancel}
                 okText={`Select (${selectedIds.length})`}
                 cancelText="Cancel"
             >
                 <SelectTable {...this.props} />
             </Modal>
+        );
+    }
+
+    _onOk = () => {
+        this.props.onFormChangeRecord(
+            this.props.blockIdx,
+            this.props.fieldIdx,
+            null // TODO
+        );
+    }
+
+    _onCancel = () => {
+        this.props.onModalClose(
+            this.props.blockIdx,
+            this.props.fieldIdx,
         );
     }
 }

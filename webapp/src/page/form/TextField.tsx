@@ -37,10 +37,9 @@ export class TextField extends React.Component<FieldProps, State> {
     }
 
     _onChange = (evt: any) => {
-        this.props.onFormRecordChange(
+        this.props.onFormChangeRecord(
             this.props.blockIdx,
-            this.props.formModel,
-            this.props.fieldModel,
+            this.props.fieldIdx,
             evt.target.value
         );
     }

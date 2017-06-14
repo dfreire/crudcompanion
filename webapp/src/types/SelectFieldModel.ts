@@ -9,4 +9,5 @@ export interface SelectFieldModel extends FieldModel {
     selectedIds: string[];
     updatePage: string;
     isLoading: boolean;
+    isModalOpen: boolean;
 }
