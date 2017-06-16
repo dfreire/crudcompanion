@@ -71,7 +71,7 @@ class App extends React.Component<{}, State> {
                 if (fieldModel.type === 'relationship') {
                     const relationshipFieldModel = fieldModel as RelationshipFieldModel;
                     const { captionKey, tableCaptionKey, maxCount, records } = relationshipFieldModel;
-                    const selectedIds: string[] = value;
+                    const selectedIds: string[] = value || [];
 
                     relationshipFieldModel.isModalOpen = false;
                     relationshipFieldModel.selectedIds = value;
