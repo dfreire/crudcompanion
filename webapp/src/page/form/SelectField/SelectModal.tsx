@@ -17,9 +17,7 @@ interface State {
 
 export class SelectModal extends React.Component<FieldProps, State> {
     render() {
-        const selectedIds = this.props.fieldModel.selectedIds || [];
-
-        // (blockIdx: number, fieldIdx: number)
+        const selectedIds = this.props.fieldModel.selectedIds || [ ];
 
         return (
             <Modal

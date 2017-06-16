@@ -17,4 +17,5 @@ export interface Props extends State {
 
     onModalOpen: { (blockIdx: number, fieldIdx: number): void };
     onModalClose: { (blockIdx: number, fieldIdx: number): void };
+    onModalTableSelectIds: { (blockIdx: number, fieldIdx: number, selectedIds: string[]): void };
 };

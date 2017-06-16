@@ -134,7 +134,7 @@ export class SelectTable extends React.Component<SelectTableProps, State> {
             // type: 'checkbox' or 'radio'
             selectedRowKeys: this.props.fieldModel.selectedIds,
             onChange: (selectedRowKeys: any, selectedRows: any) => {
-                // this.props.onTableSelectIds(this.props.blockIdx, this.props.fieldModel, selectedRowKeys);
+                this.props.onModalTableSelectIds(this.props.blockIdx, this.props.fieldIdx, selectedRowKeys);
             }
         };
     }

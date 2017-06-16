@@ -105,7 +105,6 @@ class App extends React.Component<{}, State> {
             },
 
             onModalOpen: (blockIdx: number, fieldIdx: number) => {
-                console.log('onModalOpen');
                 const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
                 const selectFieldModel = formModel.fields[fieldIdx] as SelectFieldModel;
                 selectFieldModel.isModalOpen = true;
@@ -115,7 +114,6 @@ class App extends React.Component<{}, State> {
             },
 
             onModalClose: (blockIdx: number, fieldIdx: number) => {
-                console.log('onModalClose');
                 const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
                 const selectFieldModel = formModel.fields[fieldIdx] as SelectFieldModel;
                 selectFieldModel.isModalOpen = false;
@@ -123,6 +121,15 @@ class App extends React.Component<{}, State> {
                 (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
                 this.setState(state);
             },
+
+            onModalTableSelectIds: (blockIdx: number, fieldIdx: number, selectedIds: string[]) => {
+                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
+                const selectFieldModel = formModel.fields[fieldIdx] as SelectFieldModel;
+                selectFieldModel.selectedIds = selectedIds;
+                const state = { ...this.state };
+                (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
+                this.setState(state);
+            }
         };
 
         this._fetch = _.debounce(this._fetch.bind(this), 300);
@@ -190,7 +197,6 @@ class App extends React.Component<{}, State> {
     }
 
     _fetch() {
-        console.log('fetch');
         this.state.pageModel.blocks.forEach((blockModel, i) => {
             this._fetchBlock(blockModel, i);
         });
@@ -256,6 +262,19 @@ class App extends React.Component<{}, State> {
             .then((response) => {
                 selectFieldModel.records = response;
                 selectFieldModel.isLoading = false;
+
+                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
+                const record = formModel.record || {};
+                const value = record[selectFieldModel.key];
+
+                if (_.isArray(value)) {
+                    selectFieldModel.selectedIds = value;
+                } else if (value != null) {
+                    selectFieldModel.selectedIds = [ value ];
+                } else {
+                    selectFieldModel.selectedIds = [];
+                }
+                
                 const state = { ...this.state };
                 (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
                 this.setState(state);
