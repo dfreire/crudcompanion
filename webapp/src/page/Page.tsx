@@ -69,7 +69,7 @@ export class Page extends React.Component<Props, State> {
 
     _renderLanguage() {
         const onClick = (params: { item: any, key: string, keyPath: any }) => {
-            this.props.onPageSelectLanguage(params.key as Language);
+            this.props.onPageRelationshipLanguage(params.key as Language);
         };
 
         const uppercase = { textTransform: 'uppercase' };

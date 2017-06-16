@@ -1,25 +1,26 @@
+import * as _ from 'underscore';
 import * as React from 'react';
 import * as numeral from 'numeral';
 import { Table as AntdTable, Popover } from 'antd';
 import { Props } from '../../../types/Props';
 import { FormModel } from '../../../types/FormModel';
-import { SelectFieldModel } from '../../../types/SelectFieldModel';
+import { RelationshipFieldModel } from '../../../types/RelationshipFieldModel';
 import { TextColumnModel } from '../../../types/TextColumnModel';
 import { NumberColumnModel } from '../../../types/NumberColumnModel';
 import { ImageColumnModel } from '../../../types/ImageColumnModel';
 
-interface SelectTableProps extends Props {
+interface RelationshipTableProps extends Props {
     blockIdx: number;
     fieldIdx: number;
     formModel: FormModel;
-    fieldModel: SelectFieldModel;
+    fieldModel: RelationshipFieldModel;
 }
 
 interface State {
 }
 
-export class SelectTable extends React.Component<SelectTableProps, State> {
-    constructor(props: SelectTableProps) {
+export class RelationshipTable extends React.Component<RelationshipTableProps, State> {
+    constructor(props: RelationshipTableProps) {
         super(props);
         this.state = {
         };
@@ -131,10 +132,11 @@ export class SelectTable extends React.Component<SelectTableProps, State> {
 
     _rowSelection() {
         return {
-            // type: 'checkbox' or 'radio'
             selectedRowKeys: this.props.fieldModel.selectedIds,
-            onChange: (selectedRowKeys: any, selectedRows: any) => {
-                this.props.onModalTableSelectIds(this.props.blockIdx, this.props.fieldIdx, selectedRowKeys);
+            onChange: (selectedRowKeys: string[], selectedRows: any[]) => {
+                const maxCount = this.props.fieldModel.maxCount || Number.MAX_SAFE_INTEGER;
+                const selectedIds = _.last(selectedRowKeys, maxCount);
+                this.props.onModalTableSelectIds(this.props.blockIdx, this.props.fieldIdx, selectedIds);
             }
         };
     }

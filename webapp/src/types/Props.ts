@@ -4,7 +4,7 @@ import { Language } from './Language';
 export interface Props extends State {
     pageContext: PageJS.Context;
 
-    onPageSelectLanguage: { (language: Language): void };
+    onPageRelationshipLanguage: { (language: Language): void };
 
     onTableSelectIds: { (blockIdx: number, selectedIds: string[]): void };
     onTableRemoveRecords: { (blockIdx: number, recordIds: string[]): void };

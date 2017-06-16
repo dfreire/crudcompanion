@@ -1,6 +1,6 @@
 import { Language } from './Language';
 import { PageModel } from './PageModel';
-import { SelectFieldModel } from './SelectFieldModel';
+import { RelationshipFieldModel } from './RelationshipFieldModel';
 
 export interface State {
     pageContext?: PageJS.Context;
@@ -11,6 +11,6 @@ export interface State {
     fetchModal?: {
         blockIdx: number;
         fieldIdx: number;
-        selectFieldModel: SelectFieldModel;
+        selectFieldModel: RelationshipFieldModel;
     }
 }

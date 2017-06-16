@@ -2,20 +2,20 @@ import * as React from 'react';
 import { Form, Input, Icon } from 'antd';
 import { Props } from '../../../types/Props';
 import { FormModel } from '../../../types/FormModel';
-import { SelectFieldModel } from '../../../types/SelectFieldModel';
-import { SelectModal } from './SelectModal';
+import { RelationshipFieldModel } from '../../../types/RelationshipFieldModel';
+import { RelationshipModal } from './RelationshipModal';
 
 interface FieldProps extends Props {
     blockIdx: number;
     fieldIdx: number;
     formModel: FormModel;
-    fieldModel: SelectFieldModel;
+    fieldModel: RelationshipFieldModel;
 }
 
 interface State {
 }
 
-export class SelectField extends React.Component<FieldProps, State> {
+export class RelationshipField extends React.Component<FieldProps, State> {
     constructor(props: FieldProps) {
         super(props);
         this.state = {
@@ -31,12 +31,12 @@ export class SelectField extends React.Component<FieldProps, State> {
                 <Input
                     type="text"
                     placeholder={this.props.fieldModel.placeholder}
-                    value={record[this.props.fieldModel.key]}
+                    value={record[this.props.fieldModel.captionKey] || record[this.props.fieldModel.key]}
                     disabled={this.props.formModel.isLoading}
                     suffix={<Icon type="close" onClick={this._onClickedClear} />}
                     addonAfter={<Icon type="search" onClick={this._onClickedSearch} />}
                 />
-                <SelectModal {...this.props} />
+                <RelationshipModal {...this.props} />
             </Form.Item>
         );
     }
@@ -50,7 +50,6 @@ export class SelectField extends React.Component<FieldProps, State> {
     }
 
     _onClickedSearch = () => {
-        console.log('_onClickedSearch');
         this.props.onModalOpen(
             this.props.blockIdx,
             this.props.fieldIdx,
@@ -58,11 +57,10 @@ export class SelectField extends React.Component<FieldProps, State> {
     }
 
     _onClickedClear = () => {
-        console.log('_onClickedClear');
         this.props.onFormChangeRecord(
             this.props.blockIdx,
             this.props.fieldIdx,
-            null // TODO
+            null
         );
     }
 }

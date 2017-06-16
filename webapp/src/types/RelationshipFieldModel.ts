@@ -1,7 +1,7 @@
 import { FieldModel } from './FieldModel';
 import { ColumnModel } from './ColumnModel';
 
-export interface SelectFieldModel extends FieldModel {
+export interface RelationshipFieldModel extends FieldModel {
     placeholder?: string;
     cols: ColumnModel[];
     getHandler: string;
@@ -10,4 +10,7 @@ export interface SelectFieldModel extends FieldModel {
     updatePage: string;
     isLoading: boolean;
     isModalOpen: boolean;
+    maxCount?: number;
+    captionKey: string;
+    tableCaptionKey: string;
 }

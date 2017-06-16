@@ -11,7 +11,7 @@ import { PageModel } from './types/PageModel';
 import { BlockModel } from './types/BlockModel';
 import { TableModel } from './types/TableModel';
 import { FormModel } from './types/FormModel';
-import { SelectFieldModel } from './types/SelectFieldModel';
+import { RelationshipFieldModel } from './types/RelationshipFieldModel';
 import { Page } from './page/Page';
 
 class App extends React.Component<{}, State> {
@@ -27,7 +27,7 @@ class App extends React.Component<{}, State> {
         };
 
         this.handlers = {
-            onPageSelectLanguage: (language: Language) => {
+            onPageRelationshipLanguage: (language: Language) => {
                 const { pageContext } = this.state;
                 if (pageContext != null) {
                     const query = { ...queryString.parse(pageContext.querystring), language_id: language };
@@ -65,16 +65,40 @@ class App extends React.Component<{}, State> {
             onFormChangeRecord: (blockIdx: number, fieldIdx: number, value: any) => {
                 const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
                 const fieldModel = formModel.fields[fieldIdx];
-
+                const key = fieldModel.key;
                 const record = formModel.record || {};
-                record[fieldModel.key] = value || null;
-                formModel.record = record;
 
-                if (fieldModel.type === 'select-one') {
-                    (fieldModel as SelectFieldModel).isModalOpen = false;
-                    formModel.fields[fieldIdx] = fieldModel;
+                if (fieldModel.type === 'relationship') {
+                    const relationshipFieldModel = fieldModel as RelationshipFieldModel;
+                    const { captionKey, tableCaptionKey, maxCount, records } = relationshipFieldModel;
+                    const selectedIds: string[] = value;
+
+                    relationshipFieldModel.isModalOpen = false;
+                    relationshipFieldModel.selectedIds = value;
+                    formModel.fields[fieldIdx] = relationshipFieldModel;
+
+                    const captions: string[] = selectedIds.map((id) => {
+                        return (records || []).find((r) => id === r.id)[tableCaptionKey];
+                    });
+
+                    if (_.size(selectedIds) === 0) {
+                        record[key] = null;
+                        record[captionKey] = undefined;
+
+                    } else if (maxCount === 1) {
+                        record[key] = value[0];
+                        record[captionKey] = captions[0];
+
+                    } else {
+                        record[key] = value;
+                        record[captionKey] = captions.join(', ');
+                    }
+
+                } else {
+                    record[key] = value || null;
                 }
 
+                formModel.record = record;
                 const state = { ...this.state };
                 state.pageModel.blocks[blockIdx] = formModel;
                 this.setState(state);
@@ -106,7 +130,7 @@ class App extends React.Component<{}, State> {
 
             onModalOpen: (blockIdx: number, fieldIdx: number) => {
                 const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
-                const selectFieldModel = formModel.fields[fieldIdx] as SelectFieldModel;
+                const selectFieldModel = formModel.fields[fieldIdx] as RelationshipFieldModel;
                 selectFieldModel.isModalOpen = true;
                 const state = { ...this.state, fetchModal: { blockIdx, fieldIdx, selectFieldModel } };
                 (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
@@ -115,7 +139,7 @@ class App extends React.Component<{}, State> {
 
             onModalClose: (blockIdx: number, fieldIdx: number) => {
                 const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
-                const selectFieldModel = formModel.fields[fieldIdx] as SelectFieldModel;
+                const selectFieldModel = formModel.fields[fieldIdx] as RelationshipFieldModel;
                 selectFieldModel.isModalOpen = false;
                 const state = { ...this.state };
                 (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
@@ -124,7 +148,7 @@ class App extends React.Component<{}, State> {
 
             onModalTableSelectIds: (blockIdx: number, fieldIdx: number, selectedIds: string[]) => {
                 const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
-                const selectFieldModel = formModel.fields[fieldIdx] as SelectFieldModel;
+                const selectFieldModel = formModel.fields[fieldIdx] as RelationshipFieldModel;
                 selectFieldModel.selectedIds = selectedIds;
                 const state = { ...this.state };
                 (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
@@ -255,7 +279,7 @@ class App extends React.Component<{}, State> {
         }
     }
 
-    _fetchModal(blockIdx: number, fieldIdx: number, selectFieldModel: SelectFieldModel) {
+    _fetchModal(blockIdx: number, fieldIdx: number, selectFieldModel: RelationshipFieldModel) {
         const { getHandler } = selectFieldModel;
         const qs = queryString.stringify({ language_id: this.state.language });
         Ajax.get(Util.cleanUrl(`/api/${getHandler}?${qs}`))
@@ -270,11 +294,11 @@ class App extends React.Component<{}, State> {
                 if (_.isArray(value)) {
                     selectFieldModel.selectedIds = value;
                 } else if (value != null) {
-                    selectFieldModel.selectedIds = [ value ];
+                    selectFieldModel.selectedIds = [value];
                 } else {
                     selectFieldModel.selectedIds = [];
                 }
-                
+
                 const state = { ...this.state };
                 (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
                 this.setState(state);

@@ -2,14 +2,13 @@ import * as React from 'react';
 import { Form as AntdForm, Row, Col, Button, Popconfirm } from 'antd';
 import { TextField } from './TextField';
 import { TextAreaField } from './TextAreaField';
-import { SelectField } from './SelectField/SelectField';
-// import { SelectOneField } from './SelectOneField';
+import { RelationshipField } from './RelationshipField/RelationshipField';
 import { Props } from '../../types/Props';
 import { FormModel } from '../../types/FormModel';
 import { FieldModel } from '../../types/FieldModel';
 import { TextFieldModel } from '../../types/TextFieldModel';
 import { TextAreaFieldModel } from '../../types/TextAreaFieldModel';
-import { SelectFieldModel } from '../../types/SelectFieldModel';
+import { RelationshipFieldModel } from '../../types/RelationshipFieldModel';
 
 interface FormProps extends Props {
     blockIdx: number;
@@ -48,15 +47,14 @@ export class Form extends React.Component<FormProps, State> {
     _renderField(fieldModel: FieldModel, i: number) {
         switch (fieldModel.type) {
             case 'text':
-                return <TextField {...this.props} fieldIdx={i} fieldModel={fieldModel as TextFieldModel} />;
+                const textFieldModel = fieldModel as TextFieldModel;
+                return <TextField {...this.props} fieldIdx={i} fieldModel={textFieldModel} />;
             case 'textarea':
-                return <TextAreaField {...this.props} fieldIdx={i} fieldModel={fieldModel as TextAreaFieldModel} />;
-            case 'select-one':
-                return <SelectField {...this.props} fieldIdx={i} fieldModel={fieldModel as SelectFieldModel} />;
-            /*
-            case 'select-one':
-                return <SelectOneField {...this.props} fieldKey={fieldModel.key} />;
-            */
+                const textAreaFieldModel = fieldModel as TextAreaFieldModel;
+                return <TextAreaField {...this.props} fieldIdx={i} fieldModel={textAreaFieldModel} />;
+            case 'relationship':
+                const relationshipFieldModel = fieldModel as RelationshipFieldModel;
+                return <RelationshipField {...this.props} fieldIdx={i} fieldModel={relationshipFieldModel} />;
             default:
                 return <div />;
         }
