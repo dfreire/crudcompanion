@@ -23,7 +23,7 @@ class App extends React.Component<{}, State> {
             languages: [],
             language: '',
             pageModel: { blocks: [] },
-            shouldFetch: false,
+            shouldFetchBlocks: false,
         };
 
         this.handlers = {
@@ -65,7 +65,7 @@ class App extends React.Component<{}, State> {
             onFormChangeRecord: (blockIdx: number, fieldIdx: number, value: any) => {
                 const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
                 const fieldModel = formModel.fields[fieldIdx];
-                
+
                 const record = formModel.record || {};
                 record[fieldModel.key] = value || null;
                 formModel.record = record;
@@ -107,25 +107,26 @@ class App extends React.Component<{}, State> {
             onModalOpen: (blockIdx: number, fieldIdx: number) => {
                 console.log('onModalOpen');
                 const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
-                const fieldModel = formModel.fields[fieldIdx] as SelectFieldModel;
-                fieldModel.isModalOpen = true;
-                const state = { ...this.state };
-                (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = fieldModel;
+                const selectFieldModel = formModel.fields[fieldIdx] as SelectFieldModel;
+                selectFieldModel.isModalOpen = true;
+                const state = { ...this.state, fetchModal: { blockIdx, fieldIdx, selectFieldModel } };
+                (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
                 this.setState(state);
             },
 
             onModalClose: (blockIdx: number, fieldIdx: number) => {
                 console.log('onModalClose');
                 const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
-                const fieldModel = formModel.fields[fieldIdx] as SelectFieldModel;
-                fieldModel.isModalOpen = false;
+                const selectFieldModel = formModel.fields[fieldIdx] as SelectFieldModel;
+                selectFieldModel.isModalOpen = false;
                 const state = { ...this.state };
-                (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = fieldModel;
+                (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
                 this.setState(state);
             },
         };
 
         this._fetch = _.debounce(this._fetch.bind(this), 300);
+        this._fetchModal = _.debounce(this._fetchModal.bind(this), 300);
         this.handlers.onTableUploadedFile = _.debounce(this.handlers.onTableUploadedFile.bind(this), 500);
     }
 
@@ -161,7 +162,7 @@ class App extends React.Component<{}, State> {
                                     pageContext,
                                     language: query.language_id,
                                     pageModel,
-                                    shouldFetch: true
+                                    shouldFetchBlocks: true
                                 });
                             }
                         });
@@ -175,9 +176,16 @@ class App extends React.Component<{}, State> {
     }
 
     componentDidUpdate() {
-        if (this.state.shouldFetch) {
-            this.setState({ shouldFetch: false });
+        if (this.state.shouldFetchBlocks) {
+            this.setState({ shouldFetchBlocks: false });
             this._fetch();
+        } else if (this.state.fetchModal != null) {
+            const { blockIdx, fieldIdx, selectFieldModel } = this.state.fetchModal;
+            const state = { ...this.state, fetchModal: undefined };
+            selectFieldModel.isLoading = true;
+            (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
+            this.setState(state);
+            this._fetchModal(blockIdx, fieldIdx, selectFieldModel);
         }
     }
 
@@ -239,6 +247,19 @@ class App extends React.Component<{}, State> {
                     });
             }
         }
+    }
+
+    _fetchModal(blockIdx: number, fieldIdx: number, selectFieldModel: SelectFieldModel) {
+        const { getHandler } = selectFieldModel;
+        const qs = queryString.stringify({ language_id: this.state.language });
+        Ajax.get(Util.cleanUrl(`/api/${getHandler}?${qs}`))
+            .then((response) => {
+                selectFieldModel.records = response;
+                selectFieldModel.isLoading = false;
+                const state = { ...this.state };
+                (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
+                this.setState(state);
+            });
     }
 }
 
