@@ -83,11 +83,11 @@ export class Table extends React.Component<TableProps, State> {
     }
 
     _renderUploadButton() {
-        const uploadHandler = this.props.tableModel.uploadHandler;
+        const { uploadHandler } = this.props.tableModel;
 
         const props = {
             name: 'file',
-            action: '/api/file/upload/',
+            action: '/api' + uploadHandler + '?language_id=' + this.props.language,
             multiple: true,
             showUploadList: false,
             headers: {},
@@ -113,6 +113,7 @@ export class Table extends React.Component<TableProps, State> {
 
         if (uploadHandler == null) {
             return <span />;
+
         } else {
             const uploaded = _(this.state.uploadingMap).values()
                 .reduce((acc: number, item: any) => (acc + (item.percent / 100 * item.size)), 0);
@@ -148,7 +149,7 @@ export class Table extends React.Component<TableProps, State> {
             Modal.confirm({ title: 'Are you sure?', onOk: onConfirmBulkRemove, okText: 'Yes', cancelText: 'No' });
         };
 
-        const menu = (            
+        const menu = (
             <Menu onClick={onBulkRemove}>
                 <Menu.Item key="bulk-remove" disabled={selectedIds.length === 0}>Remove</Menu.Item>
             </Menu>
@@ -253,7 +254,7 @@ export class Table extends React.Component<TableProps, State> {
                 );
 
                 const onRemove = () => {
-                    this.props.onTableRemoveRecords(this.props.blockIdx, [ record.id ]);
+                    this.props.onTableRemoveRecords(this.props.blockIdx, [record.id]);
                 };
 
                 return (

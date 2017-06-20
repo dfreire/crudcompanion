@@ -23,7 +23,7 @@ export class Page extends React.Component<Props, State> {
             <div style={{ marginTop: 40, marginBottom: 40 }}>
                 <Row>
                     <Col span={20}>
-                        <a href="/pages">pages</a> | <a href="/files">files</a>
+                        <a href="/wines">wines</a> | <a href="/pages">pages</a> | <a href="/files">files</a>
                         <br /><br />
                     </Col>
                     <Col span={20}>
@@ -33,7 +33,9 @@ export class Page extends React.Component<Props, State> {
                         {this._renderLanguage()}
                     </Col>
                 </Row>
-                {this._renderBlocks()}
+                <Row gutter={16}>
+                    {this._renderBlocks()}
+                </Row>
             </div>
         );
     }
@@ -95,11 +97,9 @@ export class Page extends React.Component<Props, State> {
         const blocks = this.props.pageModel.blocks || [];
         return blocks.map((blockModel, i) => {
             return (
-                <Row key={i}>
-                    <Col span={blockModel.span}>
-                        {this._renderBlock(blockModel, i)}
-                    </Col>
-                </Row>
+                <Col key={i} span={blockModel.span}>
+                    {this._renderBlock(blockModel, i)}
+                </Col>
             );
         });
     }
