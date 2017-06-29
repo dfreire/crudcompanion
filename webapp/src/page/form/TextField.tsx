@@ -3,6 +3,7 @@ import { Form, Input } from 'antd';
 import { Props } from '../../types/Props';
 import { FormModel } from '../../types/FormModel';
 import { TextFieldModel } from '../../types/TextFieldModel';
+import { TranslationHelp } from './TranslationHelp';
 
 interface FieldProps extends Props {
     blockIdx: number;
@@ -24,15 +25,18 @@ export class TextField extends React.Component<FieldProps, State> {
         const record = this.props.formModel.record || {};
 
         return (
-            <Form.Item label={this.props.fieldModel.title}>
-                <Input
-                    type="text"
-                    placeholder={this.props.fieldModel.placeholder}
-                    value={record[this.props.fieldModel.key]}
-                    disabled={this.props.formModel.isLoading}
-                    onChange={this._onChange}
-                />
-            </Form.Item>
+            <div>
+                <Form.Item label={this.props.fieldModel.title} colon={true}>
+                    <Input
+                        type="text"
+                        placeholder={this.props.fieldModel.placeholder}
+                        value={record[this.props.fieldModel.key]}
+                        disabled={this.props.formModel.isLoading}
+                        onChange={this._onChange}
+                    />
+                    <TranslationHelp {...this.props} />
+                </Form.Item>
+            </div>
         );
     }
 

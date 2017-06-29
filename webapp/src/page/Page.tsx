@@ -33,9 +33,7 @@ export class Page extends React.Component<Props, State> {
                         {this._renderLanguage()}
                     </Col>
                 </Row>
-                <Row gutter={16}>
-                    {this._renderBlocks()}
-                </Row>
+                {this._renderBlocks()}
             </div>
         );
     }
@@ -97,9 +95,11 @@ export class Page extends React.Component<Props, State> {
         const blocks = this.props.pageModel.blocks || [];
         return blocks.map((blockModel, i) => {
             return (
-                <Col key={i} span={blockModel.span}>
-                    {this._renderBlock(blockModel, i)}
-                </Col>
+                <Row key={i}>
+                    <Col key={i} span={blockModel.span}>
+                        {this._renderBlock(blockModel, i)}
+                    </Col>
+                </Row>
             );
         });
     }

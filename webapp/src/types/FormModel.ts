@@ -9,5 +9,5 @@ export interface FormModel extends BlockModel {
     saveHandler: string;
     removeHandler?: string;
 
-    record?: object;
+    record?: { _translationsByLanguageId?: object };
 }
