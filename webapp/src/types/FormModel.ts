@@ -8,7 +8,6 @@ export interface FormModel extends BlockModel {
     getHandler?: string;
     saveHandler: string;
     removeHandler?: string;
-    cancelPage: string;
 
     record?: object;
 }

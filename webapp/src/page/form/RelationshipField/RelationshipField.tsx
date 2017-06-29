@@ -1,5 +1,8 @@
 import * as React from 'react';
 import { Form, Input, Icon } from 'antd';
+import * as queryString from 'query-string';
+
+import { Link } from '../../../Link';
 import { Props } from '../../../types/Props';
 import { FormModel } from '../../../types/FormModel';
 import { RelationshipFieldModel } from '../../../types/RelationshipFieldModel';
@@ -24,21 +27,32 @@ export class RelationshipField extends React.Component<FieldProps, State> {
     }
 
     render() {
-        const record = this.props.formModel.record || {};
-
         return (
             <Form.Item label={this.props.fieldModel.title}>
                 <Input
                     type="text"
                     placeholder={this.props.fieldModel.placeholder}
-                    value={record[this.props.fieldModel.captionKey] || record[this.props.fieldModel.key]}
-                    disabled={this.props.formModel.isLoading}
-                    suffix={<Icon type="close" onClick={this._onClickedClear} />}
+                    value={null/*value*/}
+                    disabled={true/*this.props.formModel.isLoading*/}
+                    prefix={this._renderValue()}
                     addonAfter={<Icon type="search" onClick={this._onClickedSearch} />}
+                    suffix={<Icon type="close" onClick={this._onClickedClear} />}
                 />
                 <RelationshipModal {...this.props} />
             </Form.Item>
         );
+    }
+
+    _renderValue = () => {
+        const record = this.props.formModel.record || {};
+        const id = record[this.props.fieldModel.key];
+        const caption = record[this.props.fieldModel.captionKey];
+
+        const editQueryString = queryString.stringify(
+            Object.assign(queryString.parse(this.props.pageContext.querystring), { id })
+        );
+
+        return <Link text={caption || id} path={`${this.props.fieldModel.updatePage}?${editQueryString}`} />;
     }
 
     _onChange = (evt: any) => {

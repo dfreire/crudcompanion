@@ -109,7 +109,7 @@ class App extends React.Component<{}, State> {
                 const qs = queryString.stringify({ language_id: this.state.language });
                 Ajax.post(`/api/${formModel.saveHandler}/?${qs}`, formModel.record)
                     .then(() => {
-                        page(formModel.cancelPage);
+                        window.history.back();
                     });
             },
 
@@ -119,13 +119,12 @@ class App extends React.Component<{}, State> {
                 const qs = queryString.stringify({ id: record.id });
                 Ajax.del(`/api/${formModel.removeHandler}/?${qs}`)
                     .then(() => {
-                        page(formModel.cancelPage);
+                        window.history.back();
                     });
             },
 
             onFormCancel: (blockIdx: number) => {
-                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
-                page(formModel.cancelPage);
+                window.history.back();
             },
 
             onModalOpen: (blockIdx: number, fieldIdx: number) => {
