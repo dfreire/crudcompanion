@@ -2,12 +2,14 @@ import * as React from 'react';
 import { Form as AntdForm, Row, Col, Button, Popconfirm } from 'antd';
 import { TextField } from './TextField';
 import { TextAreaField } from './TextAreaField';
+import { ThumbnailField } from './ThumbnailField';
 import { RelationshipField } from './RelationshipField/RelationshipField';
 import { Props } from '../../types/Props';
 import { FormModel } from '../../types/FormModel';
 import { FieldModel } from '../../types/FieldModel';
 import { TextFieldModel } from '../../types/TextFieldModel';
 import { TextAreaFieldModel } from '../../types/TextAreaFieldModel';
+import { ThumbnailFieldModel } from '../../types/ThumbnailFieldModel';
 import { RelationshipFieldModel } from '../../types/RelationshipFieldModel';
 
 interface FormProps extends Props {
@@ -55,6 +57,9 @@ export class Form extends React.Component<FormProps, State> {
             case 'relationship':
                 const relationshipFieldModel = fieldModel as RelationshipFieldModel;
                 return <RelationshipField {...this.props} fieldIdx={i} fieldModel={relationshipFieldModel} />;
+            case 'thumbnail':
+                const thumbnailFieldModel = fieldModel as ThumbnailFieldModel;
+                return <ThumbnailField {...this.props} fieldIdx={i} fieldModel={thumbnailFieldModel} />;
             default:
                 return <div />;
         }
