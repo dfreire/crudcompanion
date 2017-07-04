@@ -107,9 +107,13 @@ export class Page extends React.Component<Props, State> {
     _renderBlock(blockModel: BlockModel, i: number) {
         switch (blockModel.type) {
             case 'table':
-                return <Table {...this.props} blockIdx={i} tableModel={blockModel as TableModel} />;
+                const tableModel = blockModel as TableModel;
+                console.log(tableModel.title, 'records', tableModel.records);
+                return <Table {...this.props} blockIdx={i} tableModel={tableModel} />;
             case 'form':
-                return <Form {...this.props} blockIdx={i} formModel={blockModel as FormModel} />;
+                const formModel = blockModel as FormModel;
+                console.log(formModel.title, 'record', formModel.record);
+                return <Form {...this.props} blockIdx={i} formModel={formModel} />;
             default:
                 return <p>JSON.stringify(block)</p>;
         }
