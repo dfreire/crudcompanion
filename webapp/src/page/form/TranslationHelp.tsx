@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
 import * as React from 'react';
-import { Row, Col, Dropdown, Menu, Button, Icon } from 'antd';
+import { Radio } from 'antd';
 import { Props } from '../../types/Props';
 import { FormModel } from '../../types/FormModel';
 import { FieldModel } from '../../types/FieldModel';
@@ -26,50 +26,55 @@ export class TranslationHelp extends React.Component<FieldProps, State> {
         const record = this.props.formModel.record || {};
         const _translationsByLanguageId = record._translationsByLanguageId || {};
 
-        const languages = ['--', ...this.props.languages.filter(languageId => {
+        const languages = this.props.languages.filter(languageId => {
             if (languageId === this.props.language) {
                 return false;
             } else {
                 const translations = _translationsByLanguageId[languageId] || {};
                 return _.size(translations[this.props.fieldModel.key]) > 0;
             }
-        })];
+        });
 
         const selectedLanguageId = this.state.selectedLanguageId || languages[0];
         const translations = _translationsByLanguageId[selectedLanguageId] || {};
         const translationValue = translations[this.props.fieldModel.key];
 
         return (
-            <Row>
-                <Col span={2}>
-                    <Dropdown overlay={this._renderMenu(languages)}>
-                        <Button type="dashed" size="small">
-                            {selectedLanguageId} <Icon type="down" />
-                        </Button>
-                    </Dropdown>
-                </Col>
-                <Col span={22}>
-                    <p style={{ marginTop: 7, color: '#aaa', lineHeight: '1.75em' }}>
-                        {translationValue}
-                    </p>
-                </Col>
-            </Row>
+            <div>
+                {this._renderLanguages(selectedLanguageId, languages)}
+                {this._renderTranslation(translationValue)}
+            </div>
         );
     }
 
-    _renderMenu = (languages: string[]) => {
-        const onClick = (params: { item: any, key: string, keyPath: any }) => {
-            this.setState({ selectedLanguageId: params.key });
-        };
-
+    _renderLanguages = (selectedLanguageId: string, languages: string[]) => {
         return (
-            <Menu onClick={onClick}>
+            <Radio.Group
+                style={{ marginTop: 5 }}
+                value={selectedLanguageId}
+                onChange={this._onChange}
+                size="small"
+            >
                 {languages.map((languageId, i) => {
                     return (
-                        <Menu.Item key={languageId}>{languageId}</Menu.Item>
+                        <Radio.Button value={languageId}>
+                            {languageId}
+                        </Radio.Button>
                     );
                 })}
-            </Menu>
+            </Radio.Group>
+        );
+    }
+
+    _onChange = (evt: any) => {
+        this.setState({ selectedLanguageId: evt.target.value });
+    }
+
+    _renderTranslation = (translationValue: string) => {
+        return (
+            <p style={{ marginTop: 1, color: '#aaa', lineHeight: '1.75em' }}>
+                {translationValue}
+            </p>
         );
     }
 }
