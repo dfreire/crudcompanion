@@ -14,6 +14,7 @@ export interface Props extends State {
     onFormSaveRecord: { (blockIdx: number): void };
     onFormRemoveRecord: { (blockIdx: number): void };
     onFormCancel: { (blockIdx: number): void };
+    onFormChangeTranslation: { (blockIdx: number, translationId: string): void };
 
     onModalOpen: { (blockIdx: number, fieldIdx: number): void };
     onModalClose: { (blockIdx: number, fieldIdx: number): void };

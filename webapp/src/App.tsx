@@ -20,8 +20,8 @@ class App extends React.Component<{}, State> {
     constructor(props: {}) {
         super(props);
         this.state = {
-            languages: [],
-            language: '',
+            languageIds: [],
+            languageId: '',
             pageModel: { blocks: [] },
             shouldFetchBlocks: false,
         };
@@ -106,7 +106,7 @@ class App extends React.Component<{}, State> {
 
             onFormSaveRecord: (blockIdx: number) => {
                 const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
-                const qs = queryString.stringify({ language_id: this.state.language });
+                const qs = queryString.stringify({ language_id: this.state.languageId });
                 Ajax.post(`/api/${formModel.saveHandler}/?${qs}`, formModel.record)
                     .then(() => {
                         window.history.back();
@@ -125,6 +125,19 @@ class App extends React.Component<{}, State> {
 
             onFormCancel: (blockIdx: number) => {
                 window.history.back();
+            },
+
+            onFormChangeTranslation: (blockIdx: number, translationId: string) => {
+                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
+                const record: any = formModel.record || {};
+                const qs = queryString.stringify({ id: record.id, language_id: translationId });
+                Ajax.get(Util.cleanUrl(`/api/${formModel.getHandler}?${qs}`))
+                    .then((response) => {
+                        formModel.translationRecord = response;
+                        const state = { ...this.state, translationId };
+                        state.pageModel.blocks[blockIdx] = formModel;
+                        this.setState(state);
+                    });
             },
 
             onModalOpen: (blockIdx: number, fieldIdx: number) => {
@@ -180,7 +193,7 @@ class App extends React.Component<{}, State> {
                             const query = queryString.parse(pageContext.querystring);
 
                             if (query.language_id == null) {
-                                query.language_id = this.state.language;
+                                query.language_id = this.state.languageId;
                                 page(Util.cleanUrl(`${pageContext.pathname}/?${queryString.stringify(query)}`));
 
                             } else if (pageModel.redirect != null) {
@@ -190,7 +203,7 @@ class App extends React.Component<{}, State> {
                                 pageModel.blocks.forEach(block => block.isLoading = true);
                                 this.setState({
                                     pageContext,
-                                    language: query.language_id,
+                                    languageId: query.language_id,
                                     pageModel,
                                     shouldFetchBlocks: true
                                 });
@@ -199,9 +212,9 @@ class App extends React.Component<{}, State> {
                 });
                 page.start({ hashbang: false });
 
-                const languages = response.languages;
-                const language = languages[0];
-                this.setState({ languages, language });
+                const languageIds = response.languages;
+                const languageId = languageIds[0];
+                this.setState({ languageIds, languageId });
             });
     }
 
@@ -226,7 +239,7 @@ class App extends React.Component<{}, State> {
     }
 
     _fetchBlock(blockModel: BlockModel, i: number) {
-        const state = { ...this.state };
+        const state = { ...this.state, translationId: undefined };
         state.pageModel.blocks[i].isLoading = true;
         this.setState(state);
 
@@ -244,7 +257,7 @@ class App extends React.Component<{}, State> {
 
     _fetchTable(tableModel: TableModel, i: number) {
         const { getHandler } = tableModel;
-        const qs = queryString.stringify({ language_id: this.state.language });
+        const qs = queryString.stringify({ language_id: this.state.languageId });
         Ajax.get(Util.cleanUrl(`/api/${getHandler}?${qs}`))
             .then((response) => {
                 tableModel.records = response;
@@ -280,7 +293,7 @@ class App extends React.Component<{}, State> {
 
     _fetchModal(blockIdx: number, fieldIdx: number, selectFieldModel: RelationshipFieldModel) {
         const { getHandler } = selectFieldModel;
-        const qs = queryString.stringify({ language_id: this.state.language });
+        const qs = queryString.stringify({ language_id: this.state.languageId });
         Ajax.get(Util.cleanUrl(`/api/${getHandler}?${qs}`))
             .then((response) => {
                 selectFieldModel.records = response;

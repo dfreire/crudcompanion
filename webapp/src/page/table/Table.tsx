@@ -87,7 +87,7 @@ export class Table extends React.Component<TableProps, State> {
 
         const props = {
             name: 'file',
-            action: '/api' + uploadHandler + '?language_id=' + this.props.language,
+            action: '/api' + uploadHandler + '?language_id=' + this.props.languageId,
             multiple: true,
             showUploadList: false,
             headers: {},

@@ -4,8 +4,9 @@ import { RelationshipFieldModel } from './RelationshipFieldModel';
 
 export interface State {
     pageContext?: PageJS.Context;
-    languages: Language[];
-    language: Language;
+    languageIds: Language[];
+    languageId: Language;
+    translationId?: string;
     pageModel: PageModel;
     shouldFetchBlocks: boolean;
     fetchModal?: {

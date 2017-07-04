@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import * as React from 'react';
 import { Radio } from 'antd';
 import { Props } from '../../types/Props';
@@ -13,7 +12,6 @@ interface FieldProps extends Props {
 }
 
 interface State {
-    selectedLanguageId?: string;
 }
 
 export class TranslationHelp extends React.Component<FieldProps, State> {
@@ -23,41 +21,27 @@ export class TranslationHelp extends React.Component<FieldProps, State> {
     }
 
     render() {
-        const record = this.props.formModel.record || {};
-        const _translationsByLanguageId = record._translationsByLanguageId || {};
-
-        const languages = this.props.languages.filter(languageId => {
-            if (languageId === this.props.language) {
-                return false;
-            } else {
-                const translations = _translationsByLanguageId[languageId] || {};
-                return _.size(translations[this.props.fieldModel.key]) > 0;
-            }
-        });
-
-        const selectedLanguageId = this.state.selectedLanguageId || languages[0];
-        const translations = _translationsByLanguageId[selectedLanguageId] || {};
-        const translationValue = translations[this.props.fieldModel.key];
-
         return (
             <div>
-                {this._renderLanguages(selectedLanguageId, languages)}
-                {this._renderTranslation(translationValue)}
+                {this._renderLanguages()}
+                {this._renderTranslation()}
             </div>
         );
     }
 
-    _renderLanguages = (selectedLanguageId: string, languages: string[]) => {
+    _renderLanguages = () => {
+        const languages = this.props.languageIds.filter(languageId => languageId !== this.props.languageId);
+
         return (
             <Radio.Group
                 style={{ marginTop: 5 }}
-                value={selectedLanguageId}
+                value={this.props.translationId}
                 onChange={this._onChange}
                 size="small"
             >
                 {languages.map((languageId, i) => {
                     return (
-                        <Radio.Button value={languageId}>
+                        <Radio.Button value={languageId} key={languageId}>
                             {languageId}
                         </Radio.Button>
                     );
@@ -67,10 +51,13 @@ export class TranslationHelp extends React.Component<FieldProps, State> {
     }
 
     _onChange = (evt: any) => {
-        this.setState({ selectedLanguageId: evt.target.value });
+        this.props.onFormChangeTranslation(this.props.blockIdx, evt.target.value);
     }
 
-    _renderTranslation = (translationValue: string) => {
+    _renderTranslation = () => {
+        const translationRecord = this.props.formModel.translationRecord || {};
+        const translationValue = translationRecord[this.props.fieldModel.key];
+
         return (
             <p style={{ marginTop: 1, color: '#aaa', lineHeight: '1.75em' }}>
                 {translationValue}

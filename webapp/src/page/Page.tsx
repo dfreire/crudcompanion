@@ -76,8 +76,8 @@ export class Page extends React.Component<Props, State> {
 
         const menu = (
             <Menu onClick={onClick}>
-                {this.props.languages.map((language) => {
-                    return <Menu.Item key={language} style={uppercase}>{language}</Menu.Item>;
+                {this.props.languageIds.map((languageId) => {
+                    return <Menu.Item key={languageId} style={uppercase}>{languageId}</Menu.Item>;
                 })}
             </Menu>
         );
@@ -85,7 +85,7 @@ export class Page extends React.Component<Props, State> {
         return (
             <Dropdown overlay={menu}>
                 <a className="ant-dropdown-link" style={uppercase}>
-                    {this.props.language} <Icon type="down" />
+                    {this.props.languageId} <Icon type="down" />
                 </a>
             </Dropdown>
         );
