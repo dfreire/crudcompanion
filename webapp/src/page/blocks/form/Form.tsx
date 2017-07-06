@@ -1,16 +1,17 @@
 import * as React from 'react';
 import { Form as AntdForm, Row, Col, Button, Popconfirm } from 'antd';
-import { TextField } from './TextField';
-import { TextAreaField } from './TextAreaField';
-import { ThumbnailField } from './ThumbnailField';
-import { RelationshipField } from './RelationshipField/RelationshipField';
-import { Props } from '../../types/Props';
-import { FormModel } from '../../types/FormModel';
-import { FieldModel } from '../../types/FieldModel';
-import { TextFieldModel } from '../../types/TextFieldModel';
-import { TextAreaFieldModel } from '../../types/TextAreaFieldModel';
-import { ThumbnailFieldModel } from '../../types/ThumbnailFieldModel';
-import { RelationshipFieldModel } from '../../types/RelationshipFieldModel';
+import * as Util from '../../../Util';
+import { Props } from '../../../types/Props';
+import { FormModel } from './FormModel';
+import { FieldModel } from './fields/FieldModel';
+import { TextField } from './fields/text/TextField';
+import { TextFieldModel } from './fields/text/TextFieldModel';
+import { TextAreaField } from './fields/textarea/TextAreaField';
+import { TextAreaFieldModel } from './fields/textarea/TextAreaFieldModel';
+import { ThumbnailField } from './fields/thumbnail/ThumbnailField';
+import { ThumbnailFieldModel } from './fields/thumbnail/ThumbnailFieldModel';
+import { RelationshipField } from './fields/relationship/RelationshipField';
+import { RelationshipFieldModel } from './fields/relationship/RelationshipFieldModel';
 
 interface FormProps extends Props {
     blockIdx: number;
@@ -87,25 +88,30 @@ export class Form extends React.Component<FormProps, State> {
                         onClick={onSave}
                         disabled={this.props.formModel.isLoading}
                     >
-                        Save
+                        {Util.getCaption(this.props, 'save')}
                     </Button>
                     <Button
                         style={{ width: 100, marginLeft: 10 }}
                         onClick={onCancel}
                         disabled={this.props.formModel.isLoading}
                     >
-                        Cancel
+                        {Util.getCaption(this.props, 'cancel')}
                     </Button>
                 </Col>
                 <Col span={12} style={{ textAlign: 'right' }}>
                     {this.props.formModel.removeHandler != null && (
-                        <Popconfirm title="Are you sure?" onConfirm={onRemove} okText="Yes" cancelText="No">
+                        <Popconfirm
+                            title={Util.getCaption(this.props, 'areYouSure')}
+                            onConfirm={onRemove}
+                            okText={Util.getCaption(this.props, 'yes')}
+                            cancelText={Util.getCaption(this.props, 'no')}
+                        >
                             <Button
                                 type="danger"
                                 style={{ width: 100 }}
                                 disabled={this.props.formModel.isLoading}
                             >
-                                Remove
+                                {Util.getCaption(this.props, 'remove')}
                             </Button>
                         </Popconfirm>
                     )}

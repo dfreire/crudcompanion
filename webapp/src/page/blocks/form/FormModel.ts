@@ -1,5 +1,5 @@
-import { BlockModel } from './BlockModel';
-import { FieldModel } from './FieldModel';
+import { BlockModel } from '../BlockModel';
+import { FieldModel } from './fields/FieldModel';
 
 export interface FormModel extends BlockModel {
     title?: string;

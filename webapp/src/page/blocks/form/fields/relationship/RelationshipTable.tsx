@@ -2,12 +2,12 @@ import * as _ from 'underscore';
 import * as React from 'react';
 import * as numeral from 'numeral';
 import { Table as AntdTable, Popover } from 'antd';
-import { Props } from '../../../types/Props';
-import { FormModel } from '../../../types/FormModel';
-import { RelationshipFieldModel } from '../../../types/RelationshipFieldModel';
-import { TextColumnModel } from '../../../types/TextColumnModel';
-import { NumberColumnModel } from '../../../types/NumberColumnModel';
-import { ImageColumnModel } from '../../../types/ImageColumnModel';
+import { Props } from '../../../../../types/Props';
+import { FormModel } from '../../FormModel';
+import { RelationshipFieldModel } from './RelationshipFieldModel';
+import { TextColumnModel } from '../../../table/columns/text/TextColumnModel';
+import { NumberColumnModel } from '../../../table/columns/number/NumberColumnModel';
+import { ImageColumnModel } from '../../../table/columns/image/ImageColumnModel';
 
 interface RelationshipTableProps extends Props {
     blockIdx: number;
@@ -136,7 +136,7 @@ export class RelationshipTable extends React.Component<RelationshipTableProps, S
             onChange: (selectedRowKeys: string[], selectedRows: any[]) => {
                 const maxCount = this.props.fieldModel.maxCount || Number.MAX_SAFE_INTEGER;
                 const selectedIds = _.last(selectedRowKeys, maxCount);
-                this.props.onModalTableSelectIds(this.props.blockIdx, this.props.fieldIdx, selectedIds);
+                this.props.onRelationshipModalTableSelectIds(this.props.blockIdx, this.props.fieldIdx, selectedIds);
             }
         };
     }

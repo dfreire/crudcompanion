@@ -1,4 +1,4 @@
-import { FieldModel } from './FieldModel';
+import { FieldModel } from '../FieldModel';
 
 export interface TextFieldModel extends FieldModel {
     placeholder?: string;

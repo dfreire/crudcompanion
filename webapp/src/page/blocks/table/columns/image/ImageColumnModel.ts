@@ -1,4 +1,4 @@
-import { ColumnModel } from './ColumnModel';
+import { ColumnModel } from '../ColumnModel';
 
 export interface ImageColumnModel extends ColumnModel {
     popoverPlacement: 'top' | 'left' | 'right' | 'bottom'

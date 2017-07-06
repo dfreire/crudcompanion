@@ -1,10 +1,9 @@
 import { State } from './State';
-import { Language } from './Language';
 
 export interface Props extends State {
     pageContext: PageJS.Context;
 
-    onPageRelationshipLanguage: { (language: Language): void };
+    onChangePageLanguage: { (languageId: string): void };
 
     onTableSelectIds: { (blockIdx: number, selectedIds: string[]): void };
     onTableRemoveRecords: { (blockIdx: number, recordIds: string[]): void };
@@ -14,9 +13,14 @@ export interface Props extends State {
     onFormSaveRecord: { (blockIdx: number): void };
     onFormRemoveRecord: { (blockIdx: number): void };
     onFormCancel: { (blockIdx: number): void };
-    onFormChangeTranslation: { (blockIdx: number, translationId: string): void };
 
-    onModalOpen: { (blockIdx: number, fieldIdx: number): void };
-    onModalClose: { (blockIdx: number, fieldIdx: number): void };
-    onModalTableSelectIds: { (blockIdx: number, fieldIdx: number, selectedIds: string[]): void };
+    onRelationshipModalOpen: { (blockIdx: number, fieldIdx: number): void };
+    onRelationshipModalClose: { (blockIdx: number, fieldIdx: number): void };
+    onRelationshipModalTableSelectIds: { (blockIdx: number, fieldIdx: number, selectedIds: string[]): void };
+
+    onTranslationModalOpen: { (blockIdx: number, fieldIdx: number): void };
+    onTranslationModalClose: { (blockIdx: number, fieldIdx: number): void };
+    onTranslationModalSave: { (blockIdx: number, fieldIdx: number): void };
+
+    onChangeTranslationLanguage: { (blockIdx: number, translationId: string): void };
 };

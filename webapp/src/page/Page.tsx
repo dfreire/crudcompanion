@@ -2,12 +2,11 @@ import * as React from 'react';
 import { Row, Col, Breadcrumb, Dropdown, Icon, Menu } from 'antd';
 import { Link } from '../Link';
 import { Props } from '../types/Props';
-import { Language } from '../types/Language';
-import { BlockModel } from '../types/BlockModel';
-import { TableModel } from '../types/TableModel';
-import { FormModel } from '../types/FormModel';
-import { Table } from './table/Table';
-import { Form } from './form/Form';
+import { BlockModel } from './blocks/BlockModel';
+import { Table } from './blocks/table/Table';
+import { TableModel } from './blocks/table/TableModel';
+import { Form } from './blocks/form/Form';
+import { FormModel } from './blocks/form/FormModel';
 
 interface State {
 };
@@ -69,15 +68,16 @@ export class Page extends React.Component<Props, State> {
 
     _renderLanguage() {
         const onClick = (params: { item: any, key: string, keyPath: any }) => {
-            this.props.onPageRelationshipLanguage(params.key as Language);
+            const languageId = params.key;
+            this.props.onChangePageLanguage(languageId);
         };
 
         const uppercase = { textTransform: 'uppercase' };
 
         const menu = (
             <Menu onClick={onClick}>
-                {this.props.languageIds.map((languageId) => {
-                    return <Menu.Item key={languageId} style={uppercase}>{languageId}</Menu.Item>;
+                {this.props.languages.map((language) => {
+                    return <Menu.Item key={language.id} style={uppercase}>{language.id}</Menu.Item>;
                 })}
             </Menu>
         );

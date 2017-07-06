@@ -1,1 +1,4 @@
-export type Language = string;
+export interface Language {
+    id: string;
+    fallbackId: string;
+}

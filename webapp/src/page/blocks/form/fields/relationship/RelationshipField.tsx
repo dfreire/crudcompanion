@@ -2,10 +2,10 @@ import * as React from 'react';
 import { Form, Input, Icon } from 'antd';
 import * as queryString from 'query-string';
 
-import { Link } from '../../../Link';
-import { Props } from '../../../types/Props';
-import { FormModel } from '../../../types/FormModel';
-import { RelationshipFieldModel } from '../../../types/RelationshipFieldModel';
+import { Link } from '../../../../../Link';
+import { Props } from '../../../../../types/Props';
+import { FormModel } from '../../FormModel';
+import { RelationshipFieldModel } from './RelationshipFieldModel';
 import { RelationshipModal } from './RelationshipModal';
 
 interface FieldProps extends Props {
@@ -64,7 +64,7 @@ export class RelationshipField extends React.Component<FieldProps, State> {
     }
 
     _onClickedSearch = () => {
-        this.props.onModalOpen(
+        this.props.onRelationshipModalOpen(
             this.props.blockIdx,
             this.props.fieldIdx,
         );

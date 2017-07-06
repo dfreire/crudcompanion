@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { Modal } from 'antd';
-import { Props } from '../../../types/Props';
-import { FormModel } from '../../../types/FormModel';
-import { RelationshipFieldModel } from '../../../types/RelationshipFieldModel';
+import * as Util from '../../../../../Util';
+import { Props } from '../../../../../types/Props';
+import { FormModel } from '../../FormModel';
+import { RelationshipFieldModel } from './RelationshipFieldModel';
 import { RelationshipTable } from './RelationshipTable';
 
 interface FieldProps extends Props {
@@ -25,8 +26,8 @@ export class RelationshipModal extends React.Component<FieldProps, State> {
                 visible={this.props.fieldModel.isModalOpen}
                 onOk={this._onOk}
                 onCancel={this._onCancel}
-                okText={`Select (${selectedIds.length})`}
-                cancelText="Cancel"
+                okText={Util.getCaption(this.props, 'selectN', {n: selectedIds.length})}
+                cancelText={Util.getCaption(this.props, 'cancel')}
             >
                 <RelationshipTable {...this.props} />
             </Modal>
@@ -42,7 +43,7 @@ export class RelationshipModal extends React.Component<FieldProps, State> {
     }
 
     _onCancel = () => {
-        this.props.onModalClose(
+        this.props.onRelationshipModalClose(
             this.props.blockIdx,
             this.props.fieldIdx,
         );

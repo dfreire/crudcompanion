@@ -1,14 +1,19 @@
 import { Language } from './Language';
-import { PageModel } from './PageModel';
-import { RelationshipFieldModel } from './RelationshipFieldModel';
+import { Captions } from './Captions';
+import { PageModel } from '../page/PageModel';
+import { RelationshipFieldModel } from '../page/blocks/form/fields/relationship/RelationshipFieldModel';
 
 export interface State {
     pageContext?: PageJS.Context;
-    languageIds: Language[];
-    languageId: Language;
-    translationId?: string;
+
+    languages: Language[];
+    languageId: string;
+
+    captions: Captions;
+
     pageModel: PageModel;
     shouldFetchBlocks: boolean;
+
     fetchModal?: {
         blockIdx: number;
         fieldIdx: number;

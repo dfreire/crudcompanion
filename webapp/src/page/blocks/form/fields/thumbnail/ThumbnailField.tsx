@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Card } from 'antd';
-import { Props } from '../../types/Props';
-import { FormModel } from '../../types/FormModel';
-import { ThumbnailFieldModel } from '../../types/ThumbnailFieldModel';
+import { Props } from '../../../../../types/Props';
+import { FormModel } from '../../FormModel';
+import { ThumbnailFieldModel } from './ThumbnailFieldModel';
 
 interface FieldProps extends Props {
     blockIdx: number;

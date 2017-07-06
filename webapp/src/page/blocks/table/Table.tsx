@@ -3,12 +3,13 @@ import * as React from 'react';
 import * as queryString from 'query-string';
 import * as numeral from 'numeral';
 import { Table as AntdTable, Button, Menu, Dropdown, Icon, Modal, Popconfirm, Upload, message, Popover } from 'antd';
-import { Link, navigateTo } from '../../Link';
-import { Props } from '../../types/Props';
-import { TableModel } from '../../types/TableModel';
-import { TextColumnModel } from '../../types/TextColumnModel';
-import { NumberColumnModel } from '../../types/NumberColumnModel';
-import { ImageColumnModel } from '../../types/ImageColumnModel';
+import * as Util from '../../../Util';
+import { Link, navigateTo } from '../../../Link';
+import { Props } from '../../../types/Props';
+import { TableModel } from './TableModel';
+import { TextColumnModel } from './columns/text/TextColumnModel';
+import { NumberColumnModel } from './columns/number/NumberColumnModel';
+import { ImageColumnModel } from './columns/image/ImageColumnModel';
 
 interface TableProps extends Props {
     blockIdx: number;
@@ -76,7 +77,7 @@ export class Table extends React.Component<TableProps, State> {
                     style={{ width: 100, marginTop: 10, marginRight: 10, marginBottom: 10 }}
                     onClick={() => navigateTo(createPage)}
                 >
-                    Create
+                    {Util.getCaption(this.props, 'create')}
                 </Button>
             );
         }
@@ -131,7 +132,7 @@ export class Table extends React.Component<TableProps, State> {
                         style={{ minWidth: 100, marginTop: 10, marginRight: 10, marginBottom: 10 }}
                         disabled={total > 0}
                     >
-                        Upload {total > 0 ? uploadingSpan() : <span />}
+                        {Util.getCaption(this.props, 'upload')} {total > 0 ? uploadingSpan() : <span />}
                     </Button>
                 </Upload>
             );
@@ -146,19 +147,26 @@ export class Table extends React.Component<TableProps, State> {
         };
 
         const onBulkRemove = () => {
-            Modal.confirm({ title: 'Are you sure?', onOk: onConfirmBulkRemove, okText: 'Yes', cancelText: 'No' });
+            Modal.confirm({
+                title: Util.getCaption(this.props, 'areYouSure'),
+                onOk: onConfirmBulkRemove,
+                okText: Util.getCaption(this.props, 'yes'),
+                cancelText: Util.getCaption(this.props, 'no'),
+            });
         };
 
         const menu = (
             <Menu onClick={onBulkRemove}>
-                <Menu.Item key="bulk-remove" disabled={selectedIds.length === 0}>Remove</Menu.Item>
+                <Menu.Item key="bulk-remove" disabled={selectedIds.length === 0}>
+                    {Util.getCaption(this.props, 'remove')}
+                </Menu.Item>
             </Menu>
         );
 
         return (
             <Dropdown overlay={menu} placement="bottomLeft">
                 <Button style={{ marginBottom: 10 }}>
-                    With {selectedIds.length} selected... <Icon type="down" />
+                    {Util.getCaption(this.props, 'withSelected', { n: selectedIds.length })} <Icon type="down" />
                 </Button>
             </Dropdown>
         );
@@ -245,9 +253,9 @@ export class Table extends React.Component<TableProps, State> {
 
     _actionsColumn() {
         return {
-            title: 'Action',
+            title: Util.getCaption(this.props, 'action'),
             key: 'action',
-            width: 100,
+            width: 120,
             render: (text: string, record: { id: string }, index: number) => {
                 const editQueryString = queryString.stringify(
                     Object.assign(queryString.parse(this.props.pageContext.querystring), { id: record.id })
@@ -259,10 +267,18 @@ export class Table extends React.Component<TableProps, State> {
 
                 return (
                     <span>
-                        <Link text="Edit" path={`${this.props.tableModel.updatePage}?${editQueryString}`} />
+                        <Link
+                            text={Util.getCaption(this.props, 'edit')}
+                            path={`${this.props.tableModel.updatePage}?${editQueryString}`}
+                        />
                         <span className="ant-divider" />
-                        <Popconfirm title="Are you sure?" onConfirm={onRemove} okText="Yes" cancelText="No">
-                            <a>Remove</a>
+                        <Popconfirm
+                            title={Util.getCaption(this.props, 'areYouSure')}
+                            onConfirm={onRemove}
+                            okText={Util.getCaption(this.props, 'yes')}
+                            cancelText={Util.getCaption(this.props, 'no')}
+                        >
+                            <a>{Util.getCaption(this.props, 'remove')}</a>
                         </Popconfirm>
                     </span>
                 );

@@ -1,5 +1,5 @@
-import { BlockModel } from './BlockModel';
-import { ColumnModel } from './ColumnModel';
+import { BlockModel } from '../BlockModel';
+import { ColumnModel } from './columns/ColumnModel';
 
 export interface TableModel extends BlockModel {
     title?: string;

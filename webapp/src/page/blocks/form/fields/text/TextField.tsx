@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { Form, Input } from 'antd';
-import { Props } from '../../types/Props';
-import { FormModel } from '../../types/FormModel';
-import { TextFieldModel } from '../../types/TextFieldModel';
-import { TranslationHelp } from './TranslationHelp';
+import { Form, Input, Button } from 'antd';
+import { Props } from '../../../../../types/Props';
+import { FormModel } from '../../FormModel';
+import { TextFieldModel } from './TextFieldModel';
 
 interface FieldProps extends Props {
     blockIdx: number;
@@ -26,7 +25,10 @@ export class TextField extends React.Component<FieldProps, State> {
 
         return (
             <div>
-                <Form.Item label={this.props.fieldModel.title} colon={true}>
+                <Form.Item label={this.props.fieldModel.title} labelCol={{ span: 12 }}>
+                    <div style={{ textAlign: 'right' }}>
+                        <Button type="dashed" shape="circle" size="small" icon="flag" />
+                    </div>
                     <Input
                         type="text"
                         placeholder={this.props.fieldModel.placeholder}
@@ -34,7 +36,6 @@ export class TextField extends React.Component<FieldProps, State> {
                         disabled={this.props.formModel.isLoading}
                         onChange={this._onChange}
                     />
-                    <TranslationHelp {...this.props} />
                 </Form.Item>
             </div>
         );

@@ -1,4 +1,4 @@
-import { BlockModel } from './BlockModel';
+import { BlockModel } from './blocks/BlockModel';
 
 export interface PageModel {
     redirect?: string;

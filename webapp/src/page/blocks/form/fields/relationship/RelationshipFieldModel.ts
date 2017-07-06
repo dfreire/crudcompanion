@@ -1,5 +1,5 @@
-import { FieldModel } from './FieldModel';
-import { ColumnModel } from './ColumnModel';
+import { FieldModel } from '../FieldModel';
+import { ColumnModel } from '../../../table/columns/ColumnModel';
 
 export interface RelationshipFieldModel extends FieldModel {
     placeholder?: string;

@@ -6,12 +6,12 @@ import * as Util from './Util';
 import * as Ajax from './Ajax';
 import { State } from './types/State';
 import { Props } from './types/Props';
-import { Language } from './types/Language';
-import { PageModel } from './types/PageModel';
-import { BlockModel } from './types/BlockModel';
-import { TableModel } from './types/TableModel';
-import { FormModel } from './types/FormModel';
-import { RelationshipFieldModel } from './types/RelationshipFieldModel';
+import { DefaultCaptions } from './types/Captions';
+import { PageModel } from './page/PageModel';
+import { BlockModel } from './page/blocks/BlockModel';
+import { TableModel } from './page/blocks/table/TableModel';
+import { FormModel } from './page/blocks/form/FormModel';
+import { RelationshipFieldModel } from './page/blocks/form/fields/relationship/RelationshipFieldModel';
 import { Page } from './page/Page';
 
 class App extends React.Component<{}, State> {
@@ -20,17 +20,18 @@ class App extends React.Component<{}, State> {
     constructor(props: {}) {
         super(props);
         this.state = {
-            languageIds: [],
+            languages: [],
             languageId: '',
+            captions: DefaultCaptions,
             pageModel: { blocks: [] },
             shouldFetchBlocks: false,
         };
 
         this.handlers = {
-            onPageRelationshipLanguage: (language: Language) => {
+            onChangePageLanguage: (languageId: string) => {
                 const { pageContext } = this.state;
                 if (pageContext != null) {
-                    const query = { ...queryString.parse(pageContext.querystring), language_id: language };
+                    const query = { ...queryString.parse(pageContext.querystring), language_id: languageId };
                     page(Util.cleanUrl(`${pageContext.pathname}/?${queryString.stringify(query)}`));
                 }
             },
@@ -127,7 +128,46 @@ class App extends React.Component<{}, State> {
                 window.history.back();
             },
 
-            onFormChangeTranslation: (blockIdx: number, translationId: string) => {
+            onRelationshipModalOpen: (blockIdx: number, fieldIdx: number) => {
+                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
+                const selectFieldModel = formModel.fields[fieldIdx] as RelationshipFieldModel;
+                selectFieldModel.isModalOpen = true;
+                const state = { ...this.state, fetchModal: { blockIdx, fieldIdx, selectFieldModel } };
+                (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
+                this.setState(state);
+            },
+
+            onRelationshipModalClose: (blockIdx: number, fieldIdx: number) => {
+                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
+                const selectFieldModel = formModel.fields[fieldIdx] as RelationshipFieldModel;
+                selectFieldModel.isModalOpen = false;
+                const state = { ...this.state };
+                (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
+                this.setState(state);
+            },
+
+            onRelationshipModalTableSelectIds: (blockIdx: number, fieldIdx: number, selectedIds: string[]) => {
+                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
+                const selectFieldModel = formModel.fields[fieldIdx] as RelationshipFieldModel;
+                selectFieldModel.selectedIds = selectedIds;
+                const state = { ...this.state };
+                (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
+                this.setState(state);
+            },
+
+            onTranslationModalOpen: (blockIdx: number, fieldIdx: number) => {
+
+            },
+
+            onTranslationModalClose: (blockIdx: number, fieldIdx: number) => {
+
+            },
+            
+            onTranslationModalSave: (blockIdx: number, fieldIdx: number) => {
+
+            },
+
+            onChangeTranslationLanguage: (blockIdx: number, translationId: string) => {
                 const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
                 const record: any = formModel.record || {};
                 const qs = queryString.stringify({ id: record.id, language_id: translationId });
@@ -139,33 +179,6 @@ class App extends React.Component<{}, State> {
                         this.setState(state);
                     });
             },
-
-            onModalOpen: (blockIdx: number, fieldIdx: number) => {
-                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
-                const selectFieldModel = formModel.fields[fieldIdx] as RelationshipFieldModel;
-                selectFieldModel.isModalOpen = true;
-                const state = { ...this.state, fetchModal: { blockIdx, fieldIdx, selectFieldModel } };
-                (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
-                this.setState(state);
-            },
-
-            onModalClose: (blockIdx: number, fieldIdx: number) => {
-                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
-                const selectFieldModel = formModel.fields[fieldIdx] as RelationshipFieldModel;
-                selectFieldModel.isModalOpen = false;
-                const state = { ...this.state };
-                (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
-                this.setState(state);
-            },
-
-            onModalTableSelectIds: (blockIdx: number, fieldIdx: number, selectedIds: string[]) => {
-                const formModel = this.state.pageModel.blocks[blockIdx] as FormModel;
-                const selectFieldModel = formModel.fields[fieldIdx] as RelationshipFieldModel;
-                selectFieldModel.selectedIds = selectedIds;
-                const state = { ...this.state };
-                (state.pageModel.blocks[blockIdx] as FormModel).fields[fieldIdx] = selectFieldModel;
-                this.setState(state);
-            }
         };
 
         this._fetch = _.debounce(this._fetch.bind(this), 300);
@@ -212,9 +225,10 @@ class App extends React.Component<{}, State> {
                 });
                 page.start({ hashbang: false });
 
-                const languageIds = response.languages;
-                const languageId = languageIds[0];
-                this.setState({ languageIds, languageId });
+                const languages = response.languages;
+                const languageId = languages[0].id;
+                const captions = response.captions;
+                this.setState({ languages, languageId, captions });
             });
     }
 
